@@ -7,4 +7,5 @@ public interface WriteIO {
     boolean deleteDirectory(String path, String dirName);
     boolean createFile(String path, String fileName, String content) throws IOException;
     boolean deleteFile(String path, String fileName);
+    boolean updateFile(String path, String fileName,String newContent) throws IOException;
 }
