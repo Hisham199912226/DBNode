@@ -75,6 +75,8 @@ public class IOOperations implements IO{
         File file = new File(path,fileName.concat(".txt"));
         if(file.exists())
             return false;
+        if(!isPathExist(path))
+            return false;
         writeLock.lock();
         try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))){
             bufferedWriter.write(content);
@@ -85,10 +87,17 @@ public class IOOperations implements IO{
         return true;
     }
 
+    private boolean isPathExist(String path){
+        File file = new File(path,"");
+        return file.exists();
+    }
+
     @Override
     public boolean deleteFile(String path, String fileName) {
         if(path == null || fileName == null)
             throw new IllegalArgumentException();
+        if(!isPathExist(path))
+            return false;
         try {
             writeLock.lock();
             File file = new File(path,fileName.concat(".txt"));
@@ -102,6 +111,8 @@ public class IOOperations implements IO{
     @Override
     public boolean updateFile(String path, String fileName, String newContent) throws IOException {
         File fileToUpdate = getFileByName(path,fileName);
+        if(!isPathExist(path))
+            return false;
         try{
             writeLock.lock();
             if(!fileToUpdate.exists())

@@ -2,6 +2,7 @@ package com.example.DBNode.database.dao;
 
 import com.example.DBNode.database.io.*;
 import com.example.DBNode.model.Document;
+import com.example.DBNode.model.DocumentsCollection;
 import com.example.DBNode.schema.*;
 import com.example.DBNode.utils.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DatabaseDAO implements DAO {
@@ -61,9 +63,9 @@ public class DatabaseDAO implements DAO {
         if(databaseName == null || collectionName == null || document == null)
             throw new IllegalArgumentException();
         String documentID = DocumentIDGenerator.getUniqueID();
-        String jsonObjectAsString = DocumentMapper.DocumentToJsonString(document);
         document.getDocument().put("_id", documentID);
         document.setId(documentID);
+        String jsonObjectAsString = DocumentMapper.DocumentToJsonString(document);
         String path = constructPath(databaseName,collectionName);
         if(isCollectionEmpty(databaseName,collectionName)) {
             createSchemaFile(path,jsonObjectAsString);
@@ -114,8 +116,13 @@ public class DatabaseDAO implements DAO {
     }
 
     @Override
-    public boolean updateDocument(String databaseName, String collectionName, Document document) {
-        return false;
+    public boolean updateDocument(String databaseName, String collectionName, Document oldDocument, Document newDocument) throws IOException {
+        if(databaseName == null || collectionName == null || oldDocument == null || newDocument == null)
+            throw new IllegalArgumentException();
+        String path = constructPath(databaseName,collectionName);
+        String oldDocumentID = oldDocument.getId();
+        String newContent = DocumentMapper.DocumentToJsonString(newDocument);
+        return ioOperations.updateFile(path,oldDocumentID,newContent);
     }
 
     @Override
@@ -135,19 +142,34 @@ public class DatabaseDAO implements DAO {
     }
 
     @Override
-    public List<Document> readCollection(String databaseName, String collectionName) {
+    public DocumentsCollection readCollection(String databaseName, String collectionName) {
         String path = constructPath(databaseName);
-        return ioOperations.getFiles(path,collectionName).stream().filter(file -> !file.getName().equalsIgnoreCase("schema.txt")).map(file -> {
-            try {
-                Document document = DocumentMapper.FileToDocument(file);
-                String fileName = file.getName();
-                String documentId = fileName.substring(0,fileName.indexOf("."));
-                document.setId(documentId);
-                return document;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).collect(Collectors.toList());
+        List<File> files = ioOperations.getFiles(path, collectionName);
+
+        String extension = ".txt";
+        List<Document> documents = files.parallelStream()
+                .map(file -> {
+                    String fileName = file.getName();
+                    if (!fileName.endsWith(extension) || fileName.equalsIgnoreCase("schema.txt")) {
+                        return null; // skip this file
+                    }
+                    String documentId = fileName.substring(0, fileName.length() - extension.length());
+                    try {
+                        Document document = DocumentMapper.FileToDocument(file);
+                        document.setId(documentId);
+                        return document;
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        DocumentsCollection collection = new DocumentsCollection();
+        collection.setCollectionName(collectionName);
+        collection.setDocuments(documents.stream()
+                .collect(Collectors.toMap(Document::getId, Document::getReference)));
+        return collection;
     }
 
     @Override
@@ -156,7 +178,9 @@ public class DatabaseDAO implements DAO {
             throw new IllegalArgumentException();
         String path = constructPath(databaseName,collectionName);
         File file = ioOperations.getFileByName(path,documentID);
-        return DocumentMapper.FileToDocument(file);
+        Document document = DocumentMapper.FileToDocument(file);
+        document.setId(documentID);
+        return document;
     }
 
     @Override

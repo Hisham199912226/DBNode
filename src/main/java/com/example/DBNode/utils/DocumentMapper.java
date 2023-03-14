@@ -16,6 +16,8 @@ public class DocumentMapper {
             throw new IllegalArgumentException();
         Document document = new Document();
         StringBuilder jsonString;
+        if(!file.exists())
+            return document;
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file))){
             String line;
             jsonString = new StringBuilder();

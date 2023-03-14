@@ -35,5 +35,6 @@ public class DocumentMapperTest {
         System.out.println(document1.getDocument()); //{isMarried=false, name=Alice, age=30}
 
 
+
     }
 }
