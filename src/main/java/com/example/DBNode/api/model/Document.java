@@ -1,4 +1,4 @@
-package com.example.DBNode.model;
+package com.example.DBNode.api.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -2,7 +2,7 @@ package com.example.DBNode.tests;
 
 import com.example.DBNode.database.dao.DAO;
 import com.example.DBNode.database.dao.DatabaseDAO;
-import com.example.DBNode.model.Document;
+import com.example.DBNode.api.model.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -2,8 +2,8 @@ package com.example.DBNode.indexing;
 
 import com.example.DBNode.database.dao.DAO;
 import com.example.DBNode.database.dao.DatabaseDAO;
-import com.example.DBNode.model.Document;
-import com.example.DBNode.model.DocumentsCollection;
+import com.example.DBNode.api.model.Document;
+import com.example.DBNode.api.model.DocumentsCollection;
 import com.example.DBNode.utils.DocumentMapper;
 
 import java.io.IOException;
@@ -100,7 +100,6 @@ public class Test {
         values2.add("age==22");
         List<String> searchForJohnResult6 = termIndex.findByMultiValues(values2);
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult6));
-
 
 
 

@@ -1,7 +1,6 @@
 package com.example.DBNode.database.dao;
 
-import com.example.DBNode.model.Document;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.DBNode.api.model.Document;
 
 import java.io.IOException;
 

@@ -1,11 +1,12 @@
 package com.example.DBNode.database.dao;
 
 import com.example.DBNode.database.io.*;
-import com.example.DBNode.model.Document;
-import com.example.DBNode.model.DocumentsCollection;
+import com.example.DBNode.api.model.Document;
+import com.example.DBNode.api.model.DocumentsCollection;
 import com.example.DBNode.schema.*;
 import com.example.DBNode.utils.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Component
 public class DatabaseDAO implements DAO {
     private final IO ioOperations = new IOOperations();
     private final String DATA_DEFAULT_PATH = "./data/";
@@ -79,6 +81,7 @@ public class DatabaseDAO implements DAO {
         }
         return false;
     }
+
     private String constructPath(String databaseName, String collectionName){
         if(databaseName == null || collectionName == null)
             throw new IllegalArgumentException();
@@ -104,8 +107,6 @@ public class DatabaseDAO implements DAO {
     private boolean isJsonObjectValid(String jsonSchema, String jsonObject){
        return JsonSchemaValidator.validateJsonObject(jsonSchema,jsonObject);
     }
-
-
 
     @Override
     public boolean deleteDocument(String databaseName, String collectionName, Document document) {
@@ -138,7 +139,7 @@ public class DatabaseDAO implements DAO {
     @Override
     public int countDocuments(String databaseName, String collectionName) {
         int documentsCount =  ioOperations.getFilesCount(constructPath(databaseName),collectionName);
-        return (documentsCount == 0 ? 0 : documentsCount -1);
+        return (documentsCount == 0 ? 0 : documentsCount - 1);
     }
 
     @Override

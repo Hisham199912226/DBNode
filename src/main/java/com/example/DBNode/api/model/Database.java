@@ -1,4 +1,4 @@
-package com.example.DBNode.model;
+package com.example.DBNode.api.model;
 
 
 import lombok.Data;

@@ -2,8 +2,8 @@ package com.example.DBNode.tests;
 
 import com.example.DBNode.database.dao.DAO;
 import com.example.DBNode.database.dao.DatabaseDAO;
-import com.example.DBNode.model.Document;
-import com.example.DBNode.model.DocumentsCollection;
+import com.example.DBNode.api.model.Document;
+import com.example.DBNode.api.model.DocumentsCollection;
 import com.example.DBNode.utils.DocumentMapper;
 
 import java.io.IOException;

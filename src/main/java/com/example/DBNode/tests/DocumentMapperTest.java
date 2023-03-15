@@ -1,7 +1,7 @@
 package com.example.DBNode.tests;
 
 
-import com.example.DBNode.model.Document;
+import com.example.DBNode.api.model.Document;
 import com.example.DBNode.utils.DocumentMapper;
 import java.io.BufferedWriter;
 import java.io.File;

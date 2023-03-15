@@ -1,6 +1,6 @@
 package com.example.DBNode.indexing;
 
-import com.example.DBNode.model.Document;
+import com.example.DBNode.api.model.Document;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
