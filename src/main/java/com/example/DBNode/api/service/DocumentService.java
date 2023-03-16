@@ -25,8 +25,9 @@ public class DocumentService {
     }
 
 
-    public boolean deleteDocument(String databaseName, String collectionName, String jsonObject){
-        return false;
+    public boolean deleteDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
+        Document document = DocumentMapper.jsonStringToDocument(jsonObject);
+        return dao.deleteDocument(databaseName,collectionName,document);
     }
 
     public boolean updateDocument(){

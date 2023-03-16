@@ -2,6 +2,7 @@ package com.example.DBNode.indexing;
 
 import com.example.DBNode.api.model.Document;
 import com.example.DBNode.utils.DocumentMapper;
+import com.example.DBNode.utils.JsonToPropertyValueConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,47 +42,19 @@ public class TermIndex implements Index{
         count++;
         idIndex.put(count,document.getId());
         reversedIdIndex.put(document.getId(),count);
-        JsonNode jsonNode = objectMapper.readTree(DocumentMapper.DocumentToJsonString(document));
-        addValuesToIndex(jsonNode,count,"");
+        addValuesToIndex(DocumentMapper.DocumentToJsonString(document),count);
     }
 
-    private void addValuesToIndex(JsonNode node, int id, String propertyName){
-        if(node == null || propertyName == null)
-            throw new IllegalArgumentException();
-        if (node.isObject()) {
-            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                propertyName = it.next();
-                JsonNode propertyNode = node.get(propertyName);
-                if(propertyName.equals("_id"))
-                    continue;
-                addValuesToIndex(propertyNode,id,propertyName);
-            }
-        } else if (node.isArray()) {
-            for (JsonNode elementNode : node) {
-                addValuesToIndex(elementNode,id,propertyName);
-            }
-        } else {
-            String[] splitValue = node.asText().split("\\s+");
-            for(String value : splitValue){
-                if(value.equals("null"))
-                    continue;
-                value = formatValue(propertyName,value);
-                if(!postings.containsKey(value))
-                    postings.put(value,new HashSet<>());
-                postings.get(value).add(id);
-            }
+    private void addValuesToIndex(String jsonObject, int id) throws JsonProcessingException {
+        List<String> values = JsonToPropertyValueConverter.convert(jsonObject);
+        System.out.println(values);
+        for (String value : values){
+            if(!postings.containsKey(value))
+                postings.put(value,new HashSet<>());
+            postings.get(value).add(id);
         }
     }
 
-    private String formatValue(String propertyName, String value){
-        if(propertyName == null || value == null)
-            throw new IllegalArgumentException();
-        StringBuilder sb = new StringBuilder();
-        sb.append(propertyName);
-        sb.append("==");
-        sb.append(value.toLowerCase().intern());
-        return sb.toString();
-    }
 
     @Override
     public void removeFromIndex(Document document) throws JsonProcessingException {
@@ -90,38 +63,19 @@ public class TermIndex implements Index{
         int countToRemove = reversedIdIndex.get(document.getId());
         idIndex.remove(countToRemove,document.getId());
         reversedIdIndex.remove(document.getId());
-        JsonNode jsonNode = objectMapper.readTree(DocumentMapper.DocumentToJsonString(document));
-        deleteValuesFromIndex(jsonNode,count,"");
+        deleteValuesFromIndex(DocumentMapper.DocumentToJsonString(document),count);
     }
 
-    private void deleteValuesFromIndex(JsonNode node, int id, String propertyName){
-        if(node == null || propertyName == null)
-            throw new IllegalArgumentException();
-        if (node.isObject()) {
-            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                propertyName = it.next();
-                JsonNode propertyNode = node.get(propertyName);
-                if(propertyName.equals("_id"))
-                    continue;
-                deleteValuesFromIndex(propertyNode,id,propertyName);
-            }
-        } else if (node.isArray()) {
-            for (JsonNode elementNode : node) {
-                deleteValuesFromIndex(elementNode,id,propertyName);
-            }
-        } else {
-            String[] splitValue = node.asText().split("\\s+");
-            for(String value : splitValue){
-                value = formatValue(propertyName,value);
-                if(postings.containsKey(value))
-                     postings.get(value).remove(id);
-                if(postings.get(value).size() == 0)
-                    postings.remove(value);
-            }
+    private void deleteValuesFromIndex(String jsonObject, int id) throws JsonProcessingException {
+        List<String> values = JsonToPropertyValueConverter.convert(jsonObject);
+        System.out.println(values);
+        for (String value : values){
+            if(postings.containsKey(value))
+                postings.get(value).remove(id);
+            if(postings.get(value).size() == 0)
+                postings.remove(value);
         }
     }
-
-
 
     @Override
     public List<String> findBySingleValue(String value) {

@@ -42,22 +42,22 @@ public class Test {
         System.out.println();
 
         System.out.println("===========================Single Value Searches=====================");
-        System.out.println("Search for \"name==John\":");
-        List<String> searchForJohnResult1 = termIndex.findBySingleValue("name==John");
+        System.out.println("Search for \"name:John\":");
+        List<String> searchForJohnResult1 = termIndex.findBySingleValue("name:John");
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult1));
 
         System.out.println();
         System.out.println();
 
-        System.out.println("Search for \"name==Jack\":");
-        List<String> searchForJohnResult2 = termIndex.findBySingleValue("name==Jack");
+        System.out.println("Search for \"name:Jack\":");
+        List<String> searchForJohnResult2 = termIndex.findBySingleValue("name:Jack");
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult2));
 
         System.out.println();
         System.out.println();
 
-        System.out.println("Search for \"age==30\":");
-        List<String> searchForJohnResult3 = termIndex.findBySingleValue("age==30");
+        System.out.println("Search for \"age:30\":");
+        List<String> searchForJohnResult3 = termIndex.findBySingleValue("age:30");
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult3));
 
         System.out.println();
@@ -67,10 +67,10 @@ public class Test {
 
         System.out.println("===========================Multi Values Searches=====================");
 
-        System.out.println("Search for \"name==Jack\" && \"age==30\":");
+        System.out.println("Search for \"name:Jack\" && \"age:30\":");
         List<String> values = new ArrayList<>();
-        values.add("name==Jack");
-        values.add("age==30");
+        values.add("name:Jack");
+        values.add("age:30");
         List<String> searchForJohnResult4 = termIndex.findByMultiValues(values);
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult4));
 
@@ -83,10 +83,10 @@ public class Test {
 
         System.out.println();
         System.out.println();
-        System.out.println("Search for \"name==Jack\" && \"age==20\":");
+        System.out.println("Search for \"name:Jack\" && \"age:20\":");
         List<String> values1 = new ArrayList<>();
-        values1.add("name==Jack");
-        values1.add("age==20");
+        values1.add("name:Jack");
+        values1.add("age:20");
         List<String> searchForJohnResult5 = termIndex.findByMultiValues(values1);
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult5));
 
@@ -94,10 +94,10 @@ public class Test {
         System.out.println();
         System.out.println();
 
-        System.out.println("Search for \"name==Jack\" && \"age==22\":");
+        System.out.println("Search for \"name:Jack\" && \"age:22\":");
         List<String> values2 = new ArrayList<>();
-        values2.add("name==Jack");
-        values2.add("age==22");
+        values2.add("name:Jack");
+        values2.add("age:22");
         List<String> searchForJohnResult6 = termIndex.findByMultiValues(values2);
         System.out.println(dao.readDocumentsByIDs("invertedIndexDB","col1",searchForJohnResult6));
 
