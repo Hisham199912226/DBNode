@@ -1,10 +1,13 @@
 package com.example.DBNode.api.controller;
 
 import com.example.DBNode.api.service.CollectionService;
+import com.example.DBNode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +33,13 @@ public class CollectionController {
             return getResponse(HttpStatus.OK,"Collection was deleted successfully!");
         else
             return getResponse(HttpStatus.NOT_FOUND,"Collection you tried to delete does not exist");
+    }
+
+    @GetMapping("node/list/collections/{databaseName}")
+    public ResponseEntity<String> listCollections(@PathVariable String databaseName){
+        if(!checkIfDatabaseExist(databaseName))
+            return getResponse(HttpStatus.NOT_FOUND,"Database you provided does not exist");
+        return ResponseEntityCreator.getResponse(HttpStatus.OK,collectionService.listCollections(databaseName));
     }
 
     private boolean checkIfDatabaseExist(String databaseName){

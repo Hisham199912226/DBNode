@@ -2,10 +2,12 @@ package com.example.DBNode.api.controller;
 
 import com.example.DBNode.api.model.Database;
 import com.example.DBNode.api.service.DatabaseService;
+import com.example.DBNode.utils.ResponseEntityCreator;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +32,11 @@ public class DatabaseController {
             return getResponse(HttpStatus.OK,"Database was deleted successfully!");
         else
             return getResponse(HttpStatus.NOT_FOUND,"Database you tried to delete does not exist");
+    }
+
+    @GetMapping("node/list/databases")
+    public ResponseEntity<String> listCollections(){
+        return ResponseEntityCreator.getResponse(HttpStatus.OK,databaseService.listDatabases());
     }
 
     private ResponseEntity<String> getResponse(HttpStatus status, String body){
