@@ -4,7 +4,7 @@ import com.example.DBNode.api.model.Document;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class DocumentMapper {
@@ -25,7 +25,7 @@ public class DocumentMapper {
                 jsonString.append(line);
             }
         }
-        HashMap<String,Object> json = objectMapper.readValue(jsonString.toString(),HashMap.class);
+        ConcurrentHashMap<String,Object> json = objectMapper.readValue(jsonString.toString(), ConcurrentHashMap.class);
         document.setDocument(json);
         return document;
     }
@@ -34,7 +34,7 @@ public class DocumentMapper {
         if(jsonString == null)
             throw new IllegalArgumentException();
         Document document = new Document();
-        HashMap<String,Object> json = objectMapper.readValue(jsonString,HashMap.class);
+        ConcurrentHashMap<String,Object> json = objectMapper.readValue(jsonString.toString(), ConcurrentHashMap.class);
         document.setDocument(json);
         return document;
     }

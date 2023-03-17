@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -146,7 +147,6 @@ public class DatabaseDAO implements DAO {
     public DocumentsCollection readCollection(String databaseName, String collectionName) {
         String path = constructPath(databaseName);
         List<File> files = ioOperations.getFiles(path, collectionName);
-
         String extension = ".txt";
         List<Document> documents = files.parallelStream()
                 .map(file -> {
@@ -168,8 +168,8 @@ public class DatabaseDAO implements DAO {
 
         DocumentsCollection collection = new DocumentsCollection();
         collection.setCollectionName(collectionName);
-        collection.setDocuments(documents.stream()
-                .collect(Collectors.toMap(Document::getId, Document::getReference)));
+        collection.setDocuments((ConcurrentHashMap<String, Document>) documents.stream()
+                .collect(Collectors.toConcurrentMap(Document::getId, Document::getReference)));
         return collection;
     }
 

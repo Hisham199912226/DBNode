@@ -6,14 +6,15 @@ import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class Document {
-    private Map<String,Object> document;
+    private ConcurrentHashMap<String,Object> document;
 
     private String id;
     public Document() {
-        this.document = new HashMap<>();
+        this.document = new ConcurrentHashMap<>();
         this.id = "";
     }
 
