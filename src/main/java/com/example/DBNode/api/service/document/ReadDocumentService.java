@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.print.Doc;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReadDocumentService {
@@ -45,31 +47,9 @@ public class ReadDocumentService {
         return collectionFromDAO;
     }
 
-    public void removeCollectionFromCache(String collectionName){
-        this.collectionCache.evict(collectionName);
-    }
-    public String readCollectionSchema(String databaseName, String collectionName) throws IOException {
-        Document schema = dao.readDocumentByID(databaseName,collectionName,"schema");
-        ObjectNode schemaNode = (ObjectNode) objectMapper.readTree(schema.DocumentAsString());
-        formatSchemaForClient(schemaNode);
-        return schemaNode.toString();
-    }
-    private void formatSchemaForClient(ObjectNode schemaNode){
-        if(schemaNode == null)
-            throw new IllegalArgumentException();
-        ObjectNode properties = (ObjectNode) schemaNode.get("properties");
-        properties.remove("_id");
-        schemaNode.replace("properties",properties);
-        ArrayNode required = (ArrayNode) schemaNode.get("required");
-        for(int i = 0 ; i < required.size(); i++){
-            if(required.get(i).asText().equals("_id"))
-                required.remove(i);
-        }
-        schemaNode.replace("required",required);
-    }
-
-
     public Optional<Document> readDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
+        if(databaseName == null || collectionName == null || jsonObject == null)
+            throw new IllegalArgumentException();
         DocumentsCollection collection = readCollectionOfDocuments(databaseName,collectionName);
         List<String> documentsIds = indexingService.searchInIndex(collection,jsonObject);
         if(documentsIds.size() == 0)
@@ -96,15 +76,76 @@ public class ReadDocumentService {
         return DocumentMapper.jsonStringToDocument(jsonNode.toString());
     }
 
-    public Optional<List<Document>> readDocuments(String databaseName, String collectionName, String jsonObject) throws JsonProcessingException {
+    public Optional<String> readDocuments(String databaseName, String collectionName, String jsonObject) throws JsonProcessingException {
+        if(databaseName == null || collectionName == null || jsonObject == null)
+            throw new IllegalArgumentException();
         DocumentsCollection collection = readCollectionOfDocuments(databaseName,collectionName);
-        if(jsonObject.equals("")){
+        String jsonString;
 
+        if(isAllDocumentsQuery(jsonObject)){
+            List<String> allDocuments = readAllCollectionDocuments(collection);
+            jsonString = allDocuments.toString();
+            return Optional.ofNullable(jsonString);
         }
+
         List<String> documentsIds = indexingService.searchInIndex(collection,jsonObject);
         if(documentsIds.size() == 0)
             return Optional.empty();
-        return null;
+        List<String> matchedDocuments = documentsIds.stream().map(documentsId -> {
+            Document document = readDocumentByID(collection,documentsId);
+            try {
+                ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(document.DocumentAsString());
+                return formatJsonResponseForClient(jsonNode).DocumentAsString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
+        jsonString = matchedDocuments.toString();
+        return Optional.ofNullable(jsonString);
+    }
+    private boolean isAllDocumentsQuery(String jsonObject){
+        if(jsonObject == null)
+            throw new IllegalArgumentException();
+        return jsonObject.equals("{}");
+    }
+    private List<String> readAllCollectionDocuments(DocumentsCollection collection){
+        if(collection == null)
+            throw new IllegalArgumentException();
+        return collection.getDocuments().values().stream().map(document -> {
+            try {
+                ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(document.DocumentAsString());
+                Document document1 = formatJsonResponseForClient(jsonNode);
+                return document1.DocumentAsString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
+    }
+
+
+    public void removeCollectionFromCache(String collectionName){
+        this.collectionCache.evict(collectionName);
+    }
+
+
+    public String readCollectionSchema(String databaseName, String collectionName) throws IOException {
+        Document schema = dao.readDocumentByID(databaseName,collectionName,"schema");
+        ObjectNode schemaNode = (ObjectNode) objectMapper.readTree(schema.DocumentAsString());
+        formatSchemaForClient(schemaNode);
+        return schemaNode.toString();
+    }
+    private void formatSchemaForClient(ObjectNode schemaNode){
+        if(schemaNode == null)
+            throw new IllegalArgumentException();
+        ObjectNode properties = (ObjectNode) schemaNode.get("properties");
+        properties.remove("_id");
+        schemaNode.replace("properties",properties);
+        ArrayNode required = (ArrayNode) schemaNode.get("required");
+        for(int i = 0 ; i < required.size(); i++){
+            if(required.get(i).asText().equals("_id"))
+                required.remove(i);
+        }
+        schemaNode.replace("required",required);
     }
 
     @PostConstruct
