@@ -25,17 +25,15 @@ import java.util.Optional;
 public class ReadDocumentController {
     private final ReadDocumentService readService;
     private final PathValidationService pathValidationService;
+
     @PostMapping("node/read/document/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> readOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
-        Optional<Document> document = readService.readDocument(databaseName,collectionName,jsonObject);
-        if(document.isPresent()) {
-            String jsonResponseString = DocumentMapper.DocumentToJsonString(document.get());
-            return ResponseEntityCreator.getResponse(HttpStatus.FOUND,jsonResponseString);
-        }
-        return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Document not found!");
+        Optional<String> jsonResponseString = readService.readDocument(databaseName,collectionName,jsonObject);
+        return jsonResponseString.map(s -> ResponseEntityCreator.getResponse(HttpStatus.OK, s)).orElseGet(()
+                -> ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND, "Document not found!"));
     }
 
     @PostMapping("node/read/document/many/{databaseName}/{collectionName}")
@@ -44,9 +42,8 @@ public class ReadDocumentController {
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
         Optional<String> jsonResponseString = readService.readDocuments(databaseName,collectionName,jsonObject);
-        if(jsonResponseString.isPresent())
-            return ResponseEntityCreator.getResponse(HttpStatus.OK,jsonResponseString.get());
-        return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Documents not found!");
+        return jsonResponseString.map(s -> ResponseEntityCreator.getResponse(HttpStatus.OK, s)).orElseGet(()
+                -> ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND, "Documents not found!"));
     }
 
 

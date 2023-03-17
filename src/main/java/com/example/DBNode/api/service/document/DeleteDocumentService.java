@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @RequiredArgsConstructor
@@ -18,37 +21,57 @@ public class DeleteDocumentService {
     private final ReadDocumentService readService;
     private final IndexingService indexingService;
 
+    private final Lock deleteOneLock = new ReentrantLock(true);
+    private final Lock deleteManyLock = new ReentrantLock(true);
+
     public boolean deleteOneDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
-        DocumentsCollection collection = readCollection(databaseName,collectionName);
-        List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
-        if(isResultEmpty(documentIds))
-            return false;
-        String documentId = documentIds.get(0);
-        Document document = readDocument(collection,documentId);
-        boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
-        if(isDocumentDeleted){
-            deleteDocumentFromCollectionAndIndex(collection,document);
-            return true;
+        DocumentsCollection collection;
+        boolean isDocumentDeleted;
+        Document document ;
+        try {
+            deleteOneLock.lock();
+            collection = readCollection(databaseName,collectionName);
+            List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
+            if(isResultEmpty(documentIds)) {
+                return false;
+            }
+            String documentId = documentIds.get(0);
+            document = readDocument(collection,documentId);
+            isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
+        }finally {
+            deleteOneLock.unlock();
         }
-        return false;
+            if(isDocumentDeleted){
+                deleteDocumentFromCollectionAndIndex(collection,document);
+                return true;
+            }
+            return false;
+
     }
 
 
     public boolean deleteManyDocuments(String databaseName, String collectionName, String jsonObject) throws IOException {
-        DocumentsCollection collection = readCollection(databaseName,collectionName);
-        List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
-        if(isResultEmpty(documentIds))
-            return false;
-        for(String documentId : documentIds){
-            Document document = readDocument(collection,documentId);
-            boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
-            if(isDocumentDeleted){
-                deleteDocumentFromCollectionAndIndex(collection,document);
+        DocumentsCollection collection;
+        try {
+            deleteManyLock.lock();
+            collection = readCollection(databaseName,collectionName);
+            List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
+            if(isResultEmpty(documentIds))
+                return false;
+            for(String documentId : documentIds){
+                Document document = readDocument(collection,documentId);
+                boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
+                if(isDocumentDeleted){
+                    deleteDocumentFromCollectionAndIndex(collection,document);
+                }
             }
+            return true;
         }
-        return true;
-    }
+        finally {
+            deleteManyLock.unlock();
+        }
 
+    }
     private DocumentsCollection readCollection(String databaseName, String collectionName) throws JsonProcessingException {
         if(databaseName == null || collectionName == null)
             throw new IllegalArgumentException();
@@ -61,7 +84,7 @@ public class DeleteDocumentService {
         return documentsIds.size() == 0;
     }
 
-    private Document readDocument(DocumentsCollection collection,  String documentId) throws IOException {
+    private Document readDocument(DocumentsCollection collection,  String documentId) {
         if(collection == null || documentId == null)
             throw new IllegalArgumentException();
         return readService.readDocumentByID(collection,documentId);

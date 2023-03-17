@@ -28,7 +28,7 @@ public class TermIndex implements Index{
         this.postings = new HashMap<>();
         this.idIndex = new HashMap<>();
         this.reversedIdIndex = new HashMap<>();
-        this.lock = new ReentrantReadWriteLock();
+        this.lock = new ReentrantReadWriteLock(true);
     }
 
     @Override
@@ -66,6 +66,8 @@ public class TermIndex implements Index{
         lock.writeLock().lock();
         try {
             for (String value : values){
+                if(value.contains("version"))
+                    continue;
                 if(!postings.containsKey(value))
                     postings.put(value,new HashSet<>());
                 postings.get(value).add(id);

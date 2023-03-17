@@ -36,18 +36,18 @@ public class ReadDocumentService {
     public DocumentsCollection readCollectionOfDocuments(String databaseName, String collectionName) throws JsonProcessingException {
         Optional<DocumentsCollection> collectionFromCache = this.collectionCache.get(collectionName);
         if(collectionFromCache.isPresent()) {
-            System.out.println("Collection from cache");
+            //System.out.println("Collection from cache");
             return collectionFromCache.get();
         }
         DocumentsCollection collectionFromDAO = dao.readCollection(databaseName,collectionName);
         collectionFromDAO.getIndex().setDocuments(collectionFromDAO.getDocuments());
         collectionFromDAO.getIndex().buildIndex();
         collectionCache.put(collectionName,collectionFromDAO);
-        System.out.println("Collection from dao");
+        //System.out.println("Collection from dao");
         return collectionFromDAO;
     }
 
-    public Optional<Document> readDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
+    public Optional<String> readDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
         if(databaseName == null || collectionName == null || jsonObject == null)
             throw new IllegalArgumentException();
         DocumentsCollection collection = readCollectionOfDocuments(databaseName,collectionName);
@@ -57,7 +57,7 @@ public class ReadDocumentService {
         Optional<Document> document = Optional.ofNullable(readDocumentByID(collection, documentsIds.get(0)));
         if(document.isPresent()){
             ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(document.get().DocumentAsString());
-            return Optional.of(formatJsonResponseForClient(jsonNode));
+            return Optional.of(formatJsonResponseForClient(jsonNode).DocumentAsString());
         }
         return Optional.empty();
     }
@@ -65,7 +65,7 @@ public class ReadDocumentService {
     public Document readDocumentByID(DocumentsCollection collection, String documentID) {
         if(collection == null || documentID == null)
             throw new IllegalArgumentException();
-        System.out.println("Document from Collection");
+        //System.out.println("Document from Collection");
         return collection.getDocuments().get(documentID);
     }
 
@@ -73,6 +73,7 @@ public class ReadDocumentService {
         if(jsonNode == null)
             throw new IllegalArgumentException();
         jsonNode.remove("_id");
+        jsonNode.remove("version");
         return DocumentMapper.jsonStringToDocument(jsonNode.toString());
     }
 
@@ -103,6 +104,8 @@ public class ReadDocumentService {
         jsonString = matchedDocuments.toString();
         return Optional.ofNullable(jsonString);
     }
+
+
     private boolean isAllDocumentsQuery(String jsonObject){
         if(jsonObject == null)
             throw new IllegalArgumentException();
@@ -124,7 +127,8 @@ public class ReadDocumentService {
 
 
     public void removeCollectionFromCache(String collectionName){
-        this.collectionCache.evict(collectionName);
+        if(collectionCache.get(collectionName).isPresent())
+            this.collectionCache.evict(collectionName);
     }
 
 
