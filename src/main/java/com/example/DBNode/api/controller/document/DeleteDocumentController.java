@@ -30,7 +30,7 @@ public class DeleteDocumentController {
     }
 
     @PostMapping("node/delete/document/many/{databaseName}/{collectionName}")
-    public ResponseEntity<String> deleteManyDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
+    public ResponseEntity<String> deleteManyDocuments(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;

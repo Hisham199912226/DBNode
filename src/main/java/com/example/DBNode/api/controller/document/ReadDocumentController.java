@@ -31,7 +31,7 @@ public class ReadDocumentController {
             String jsonResponseString = DocumentMapper.DocumentToJsonString(document.get());
             return ResponseEntityCreator.getResponse(HttpStatus.FOUND,jsonResponseString);
         }
-        return ResponseEntityCreator.getResponse(HttpStatus.FOUND,"Document not found!");
+        return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Document not found!");
     }
 
     @PostMapping("node/read/document/many/{databaseName}/{collectionName}")

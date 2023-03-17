@@ -13,10 +13,4 @@ public class CacheConfig {
         return new CacheLRU<>(8);
     }
 
-    @Bean
-    @Scope("prototype")
-    @Qualifier("documentCache")
-    public CacheLRU<String, Document> documentCache() {
-        return new CacheLRU<>(24);
-    }
 }

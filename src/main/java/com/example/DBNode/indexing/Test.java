@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Test {
     public static void main(String[] args) throws IOException {
@@ -31,7 +32,7 @@ public class Test {
         dao.addDocument("invertedIndexDB","col1", DocumentMapper.jsonStringToDocument(json6));
 
         DocumentsCollection documentsCollection = dao.readCollection("invertedIndexDB","col1");
-        TermIndex termIndex = new TermIndex((HashMap<String, Document>) documentsCollection.getDocuments());
+        TermIndex termIndex = new TermIndex((ConcurrentHashMap<String, Document>) documentsCollection.getDocuments());
         termIndex.buildIndex();
 
         System.out.println();

@@ -24,7 +24,7 @@ public class DeleteDocumentService {
         if(isResultEmpty(documentIds))
             return false;
         String documentId = documentIds.get(0);
-        Document document = readDocument(databaseName,collectionName,documentId);
+        Document document = readDocument(collection,documentId);
         boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
         if(isDocumentDeleted){
             deleteDocumentFromCollectionAndIndex(collection,document);
@@ -40,7 +40,7 @@ public class DeleteDocumentService {
         if(isResultEmpty(documentIds))
             return false;
         for(String documentId : documentIds){
-            Document document = readDocument(databaseName,collectionName,documentId);
+            Document document = readDocument(collection,documentId);
             boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
             if(isDocumentDeleted){
                 deleteDocumentFromCollectionAndIndex(collection,document);
@@ -61,10 +61,10 @@ public class DeleteDocumentService {
         return documentsIds.size() == 0;
     }
 
-    private Document readDocument(String databaseName, String collectionName, String documentId) throws IOException {
-        if(databaseName == null || collectionName == null || documentId == null)
+    private Document readDocument(DocumentsCollection collection,  String documentId) throws IOException {
+        if(collection == null || documentId == null)
             throw new IllegalArgumentException();
-        return readService.readDocumentByID(databaseName,collectionName,documentId);
+        return readService.readDocumentByID(collection,documentId);
     }
 
     private boolean deleteDocument(String databaseName, String collectionName, Document document){
@@ -77,6 +77,5 @@ public class DeleteDocumentService {
             throw new IllegalArgumentException();
         collection.getDocuments().remove(document.getId());
         collection.getIndex().removeFromIndex(document);
-        readService.removeDocumentFromCache(document.getId());
     }
 }

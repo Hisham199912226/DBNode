@@ -21,15 +21,13 @@ public class ReadDocumentService {
     private final DAO dao;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final CacheLRU<String, DocumentsCollection> collectionCache;
-    private final CacheLRU<String, Document> documentCache;
     private final IndexingService indexingService;
 
     @Autowired
     public ReadDocumentService(DAO dao, @Qualifier("collectionCache") CacheLRU<String, DocumentsCollection> collectionCache,
-                               @Qualifier("documentCache") CacheLRU<String, Document> documentCache, IndexingService indexingService) {
+                                IndexingService indexingService) {
         this.dao = dao;
         this.collectionCache = collectionCache;
-        this.documentCache = documentCache;
         this.indexingService = indexingService;
     }
 
@@ -47,34 +45,15 @@ public class ReadDocumentService {
         return collectionFromDAO;
     }
 
-    public Document readDocumentByID(String databaseName, String collectionName, String documentID) throws IOException {
-        Optional<Document> documentFromCache = this.documentCache.get(documentID);
-        if(documentFromCache.isPresent()) {
-            System.out.println("Document from cache");
-            return documentFromCache.get();
-        }
-        System.out.println("Document from dao");
-        Document documentFromDao = dao.readDocumentByID(databaseName,collectionName,documentID);
-        documentCache.put(documentID,documentFromDao);
-        return documentFromDao;
-    }
-
-    public void removeDocumentFromCache(String documentId){
-        this.documentCache.evict(documentId);
-    }
-
     public void removeCollectionFromCache(String collectionName){
         this.collectionCache.evict(collectionName);
     }
-
-
     public String readCollectionSchema(String databaseName, String collectionName) throws IOException {
         Document schema = dao.readDocumentByID(databaseName,collectionName,"schema");
         ObjectNode schemaNode = (ObjectNode) objectMapper.readTree(schema.DocumentAsString());
         formatSchemaForClient(schemaNode);
         return schemaNode.toString();
     }
-
     private void formatSchemaForClient(ObjectNode schemaNode){
         if(schemaNode == null)
             throw new IllegalArgumentException();
@@ -89,17 +68,25 @@ public class ReadDocumentService {
         schemaNode.replace("required",required);
     }
 
+
     public Optional<Document> readDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
         DocumentsCollection collection = readCollectionOfDocuments(databaseName,collectionName);
         List<String> documentsIds = indexingService.searchInIndex(collection,jsonObject);
         if(documentsIds.size() == 0)
             return Optional.empty();
-        Optional<Document> document = Optional.ofNullable(readDocumentByID(databaseName, collectionName, documentsIds.get(0)));
+        Optional<Document> document = Optional.ofNullable(readDocumentByID(collection, documentsIds.get(0)));
         if(document.isPresent()){
             ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(document.get().DocumentAsString());
             return Optional.of(formatJsonResponseForClient(jsonNode));
         }
         return Optional.empty();
+    }
+
+    public Document readDocumentByID(DocumentsCollection collection, String documentID) {
+        if(collection == null || documentID == null)
+            throw new IllegalArgumentException();
+        System.out.println("Document from Collection");
+        return collection.getDocuments().get(documentID);
     }
 
     private Document formatJsonResponseForClient(ObjectNode jsonNode) throws IOException {
@@ -111,6 +98,9 @@ public class ReadDocumentService {
 
     public Optional<List<Document>> readDocuments(String databaseName, String collectionName, String jsonObject) throws JsonProcessingException {
         DocumentsCollection collection = readCollectionOfDocuments(databaseName,collectionName);
+        if(jsonObject.equals("")){
+
+        }
         List<String> documentsIds = indexingService.searchInIndex(collection,jsonObject);
         if(documentsIds.size() == 0)
             return Optional.empty();
@@ -122,6 +112,5 @@ public class ReadDocumentService {
         System.out.println("ReadService");
         System.out.println(this.dao);
         System.out.println(this.collectionCache);
-        System.out.println(this.documentCache);
     }
 }
