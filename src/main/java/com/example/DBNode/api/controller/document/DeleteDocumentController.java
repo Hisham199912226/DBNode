@@ -17,7 +17,7 @@ public class DeleteDocumentController {
     private final DeleteDocumentService deleteService;
     private final PathValidationService pathValidationService;
 
-    @PostMapping("node/delete/document/one/{databaseName}/{collectionName}")
+    @DeleteMapping("node/delete/document/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
@@ -30,7 +30,7 @@ public class DeleteDocumentController {
         return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Document not found to delete!\n");
     }
 
-    @PostMapping("node/delete/document/many/{databaseName}/{collectionName}")
+    @DeleteMapping("node/delete/document/many/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteManyDocuments(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
@@ -41,7 +41,7 @@ public class DeleteDocumentController {
         return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Documents not found to delete!\n");
     }
 
-    @PostMapping("node/delete/document/one/{databaseName}/{collectionName}/{id}")
+    @DeleteMapping("node/delete/document/one/{databaseName}/{collectionName}/{id}")
     public ResponseEntity<String> deleteDocumentById(@PathVariable String databaseName, @PathVariable String collectionName, @PathVariable String id) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))

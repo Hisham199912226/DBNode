@@ -7,10 +7,7 @@ import com.example.DBNode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -20,7 +17,7 @@ public class UpdateDocumentController {
     private final UpdateDocumentService updateService;
     private final PathValidationService pathValidationService;
 
-    @PostMapping("node/update/document/one/{databaseName}/{collectionName}")
+    @PutMapping("node/update/document/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> updateOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody UpdateOneRequestBody updateOneRequestBody) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
@@ -38,7 +35,7 @@ public class UpdateDocumentController {
                 "and you did not violate the collection schema");
     }
 
-    @PostMapping("node/update/document/{databaseName}/{collectionName}/{id}")
+    @PutMapping("node/update/document/{databaseName}/{collectionName}/{id}")
     public ResponseEntity<String> updateDocumentByID(@PathVariable String databaseName, @PathVariable String collectionName, @PathVariable String id, @RequestBody String newContent) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
