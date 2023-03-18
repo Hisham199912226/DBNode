@@ -72,7 +72,7 @@ public class ReadDocumentService {
     private Document formatJsonResponseForClient(ObjectNode jsonNode) throws IOException {
         if(jsonNode == null)
             throw new IllegalArgumentException();
-        jsonNode.remove("_id");
+        //jsonNode.remove("_id");
         jsonNode.remove("version");
         return DocumentMapper.jsonStringToDocument(jsonNode.toString());
     }
