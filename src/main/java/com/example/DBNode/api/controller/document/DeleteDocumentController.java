@@ -41,5 +41,16 @@ public class DeleteDocumentController {
         return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Documents not found to delete!\n");
     }
 
+    @PostMapping("node/delete/document/one/{databaseName}/{collectionName}/{id}")
+    public ResponseEntity<String> deleteDocumentById(@PathVariable String databaseName, @PathVariable String collectionName, @PathVariable String id) throws IOException {
+        ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
+        if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
+            return response;
+        boolean isDocumentDeleted = deleteService.deleteDocumentByID(databaseName,collectionName,id);
+        if(isDocumentDeleted)
+            return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document were successfully deleted!");
+        return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Document not found to delete!\n");
+    }
+
 
 }

@@ -21,15 +21,13 @@ public class DeleteDocumentService {
     private final ReadDocumentService readService;
     private final IndexingService indexingService;
 
-    private final Lock deleteOneLock = new ReentrantLock(true);
-    private final Lock deleteManyLock = new ReentrantLock(true);
-
+    private final Lock deleteLock = new ReentrantLock(true);
     public boolean deleteOneDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
         DocumentsCollection collection;
         boolean isDocumentDeleted;
         Document document ;
         try {
-            deleteOneLock.lock();
+            deleteLock.lock();
             collection = readCollection(databaseName,collectionName);
             List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
             if(isResultEmpty(documentIds)) {
@@ -38,22 +36,21 @@ public class DeleteDocumentService {
             String documentId = documentIds.get(0);
             document = readDocument(collection,documentId);
             isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
-        }finally {
-            deleteOneLock.unlock();
-        }
             if(isDocumentDeleted){
                 deleteDocumentFromCollectionAndIndex(collection,document);
                 return true;
             }
             return false;
-
+        }finally {
+            deleteLock.unlock();
+        }
     }
 
 
     public boolean deleteManyDocuments(String databaseName, String collectionName, String jsonObject) throws IOException {
         DocumentsCollection collection;
         try {
-            deleteManyLock.lock();
+            deleteLock.lock();
             collection = readCollection(databaseName,collectionName);
             List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
             if(isResultEmpty(documentIds))
@@ -63,15 +60,38 @@ public class DeleteDocumentService {
                 boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
                 if(isDocumentDeleted){
                     deleteDocumentFromCollectionAndIndex(collection,document);
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
         finally {
-            deleteManyLock.unlock();
+            deleteLock.unlock();
         }
 
     }
+
+    public boolean deleteDocumentByID(String databaseName, String collectionName, String documentID) throws JsonProcessingException {
+        DocumentsCollection collection;
+        Document document;
+            collection = readCollection(databaseName,collectionName);
+            document = readDocument(collection,documentID);
+            if(document == null)
+                return false;
+            boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
+            if(isDocumentDeleted){
+                deleteDocumentFromCollectionAndIndex(collection,document);
+                return true;
+            }
+            return false;
+        }
+
+    private boolean deleteDocument(String databaseName, String collectionName, Document document){
+        if(databaseName == null || collectionName == null)
+            throw new IllegalArgumentException();
+        return dao.deleteDocument(databaseName,collectionName,document);
+    }
+
     private DocumentsCollection readCollection(String databaseName, String collectionName) throws JsonProcessingException {
         if(databaseName == null || collectionName == null)
             throw new IllegalArgumentException();
@@ -90,11 +110,7 @@ public class DeleteDocumentService {
         return readService.readDocumentByID(collection,documentId);
     }
 
-    private boolean deleteDocument(String databaseName, String collectionName, Document document){
-        if(databaseName == null || collectionName == null)
-            throw new IllegalArgumentException();
-        return dao.deleteDocument(databaseName,collectionName,document);
-    }
+
     private void deleteDocumentFromCollectionAndIndex(DocumentsCollection collection, Document document) throws JsonProcessingException {
         if(collection == null)
             throw new IllegalArgumentException();
