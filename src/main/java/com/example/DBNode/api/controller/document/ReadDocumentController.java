@@ -10,10 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +41,15 @@ public class ReadDocumentController {
         Optional<String> jsonResponseString = readService.readDocuments(databaseName,collectionName,jsonObject);
         return jsonResponseString.map(s -> ResponseEntityCreator.getResponse(HttpStatus.OK, s)).orElseGet(()
                 -> ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND, "Documents not found!"));
+    }
+
+    @GetMapping("node/read/document/count/{databaseName}/{collectionName}")
+    public ResponseEntity<String> countDocuments(@PathVariable String databaseName, @PathVariable String collectionName){
+        ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
+        if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
+            return response;
+        String documentsCount = readService.countDocuments(databaseName,collectionName);
+        return ResponseEntityCreator.getResponse(HttpStatus.OK,documentsCount);
     }
 
 

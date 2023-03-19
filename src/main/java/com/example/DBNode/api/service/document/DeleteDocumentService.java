@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,6 +48,7 @@ public class DeleteDocumentService {
 
     public boolean deleteManyDocuments(String databaseName, String collectionName, String jsonObject) throws IOException {
         DocumentsCollection collection;
+        boolean isDocumentDeleted;
         try {
             deleteLock.lock();
             collection = readCollection(databaseName,collectionName);
@@ -57,13 +57,12 @@ public class DeleteDocumentService {
                 return false;
             for(String documentId : documentIds){
                 Document document = readDocument(collection,documentId);
-                boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
+                isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
                 if(isDocumentDeleted){
                     deleteDocumentFromCollectionAndIndex(collection,document);
-                    return true;
                 }
             }
-            return false;
+            return true;
         }
         finally {
             deleteLock.unlock();

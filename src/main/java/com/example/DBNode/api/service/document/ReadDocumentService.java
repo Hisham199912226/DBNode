@@ -152,6 +152,10 @@ public class ReadDocumentService {
         schemaNode.replace("required",required);
     }
 
+    public String countDocuments(String databaseName, String collectionName){
+        return String.valueOf(dao.countDocuments(databaseName,collectionName));
+    }
+
     @PostConstruct
     public void method(){
         System.out.println("ReadService");
