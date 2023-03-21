@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,10 +138,13 @@ public class ReadDocumentService {
             throw new IllegalArgumentException();
         ObjectNode properties = (ObjectNode) schemaNode.get("properties");
         properties.remove("_id");
+        properties.remove("version");
         schemaNode.replace("properties",properties);
         ArrayNode required = (ArrayNode) schemaNode.get("required");
         for(int i = 0 ; i < required.size(); i++){
             if(required.get(i).asText().equals("_id"))
+                required.remove(i);
+            if(required.get(i).asText().equals("version"))
                 required.remove(i);
         }
         schemaNode.replace("required",required);
@@ -152,10 +154,4 @@ public class ReadDocumentService {
         return String.valueOf(dao.countDocuments(databaseName,collectionName));
     }
 
-    @PostConstruct
-    public void method(){
-        System.out.println("ReadService");
-        System.out.println(this.dao);
-        System.out.println(this.collectionCache);
-    }
 }

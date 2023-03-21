@@ -75,11 +75,14 @@ public class IOOperations implements IO{
             return false;
         if(!isPathExist(path))
             return false;
-        writeLock.lock();
-        try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))){
-            bufferedWriter.write(content);
-            bufferedWriter.flush();
-        } finally {
+        try {
+            writeLock.lock();
+            try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))){
+                bufferedWriter.write(content);
+                bufferedWriter.flush();
+            }
+        }
+         finally {
             writeLock.unlock();
         }
         return true;
@@ -115,9 +118,10 @@ public class IOOperations implements IO{
             writeLock.lock();
             if(!fileToUpdate.exists())
                 return false;
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileToUpdate));
-            bufferedWriter.write(newContent);
-            bufferedWriter.flush();
+            try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileToUpdate));) {
+                bufferedWriter.write(newContent);
+                bufferedWriter.flush();
+            }
             return true;
         } finally {
             writeLock.unlock();

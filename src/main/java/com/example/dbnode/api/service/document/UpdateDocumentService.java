@@ -51,7 +51,7 @@ public class UpdateDocumentService {
             return false;
         }
         int currentVersion = (int) document.getDocument().get("version");
-        System.out.println(Thread.currentThread().getName() +  " " + currentVersion);
+       // System.out.println(Thread.currentThread().getName() +  " " + currentVersion);
 
         JsonNode newDoc = mapper.readTree(document.DocumentAsString());
         JsonNode content = mapper.readTree(newContent);
@@ -62,7 +62,7 @@ public class UpdateDocumentService {
 
         boolean updated = tryUpdateDocument(databaseName, collectionName, currentVersion, newDoc,documentID);
         if (!updated) {
-            System.out.println(Thread.currentThread().getName() + " Try again!");
+           // System.out.println(Thread.currentThread().getName() + " Try again!");
             return updateDocumentByID(databaseName, collectionName, documentID, newContent);
         }
         return true;
@@ -134,11 +134,11 @@ public class UpdateDocumentService {
             DocumentsCollection collection = readService.readCollectionOfDocuments(databaseName, collectionName);
             Document document = collection.getDocuments().get(documentID);
             if (currentVersion == (int) document.getDocument().get("version")) {
-                System.out.println(Thread.currentThread().getName() + " " + currentVersion);
+                //System.out.println(Thread.currentThread().getName() + " " + currentVersion);
                 ((ObjectNode) newDoc).put("version", newDoc.get("version").asInt() + 1);
                 readService.removeCollectionFromCache(collectionName);
                 dao.updateDocument(databaseName, collectionName, document, DocumentMapper.jsonStringToDocument(newDoc.toString()));
-                System.out.println("document before updated" + document);
+               // System.out.println("document before updated" + document);
                 return true;
             }
         } finally {
