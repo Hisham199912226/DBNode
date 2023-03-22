@@ -89,7 +89,12 @@ public class DatabaseDAO implements DAO {
         return DATA_DEFAULT_PATH.concat(databaseName.concat("/").concat(collectionName));
     }
     private boolean isCollectionEmpty(String databaseName, String collectionName){
-        return countDocuments(databaseName,collectionName) == 0;
+        int documentsCount = countDocumentsWithSchema(databaseName,collectionName);
+        return documentsCount == 0;
+    }
+
+    private int countDocumentsWithSchema(String databaseName, String collectionName){
+        return ioOperations.getFilesCount(constructPath(databaseName),collectionName);
     }
     private boolean createSchemaFile(String path, String jsonObjectAsString) throws IOException {
         String jsonSchema = produceJsonSchema(jsonObjectAsString);
@@ -106,7 +111,9 @@ public class DatabaseDAO implements DAO {
         return DocumentMapper.fileToDocument(file).DocumentAsString();
     }
     private boolean isJsonObjectValid(String jsonSchema, String jsonObject){
-       return JsonSchemaValidator.validateJsonObject(jsonSchema,jsonObject);
+       boolean f =  JsonSchemaValidator.validateJsonObject(jsonSchema,jsonObject);
+        System.out.println(f);
+       return f;
     }
 
     @Override
