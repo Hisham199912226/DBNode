@@ -1,8 +1,7 @@
 package com.example.dbnode.api.client.service.document;
 
 import com.example.dbnode.api.broadcast.service.broadcasting.DeleteDocumentBroadcast;
-import com.example.dbnode.api.client.model.Document;
-import com.example.dbnode.api.client.model.DocumentsCollection;
+import com.example.dbnode.api.client.model.*;
 import com.example.dbnode.api.client.service.IndexingService;
 import com.example.dbnode.database.dao.DAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,8 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +19,6 @@ public class DeleteDocumentService {
     private final DAO dao;
     private final ReadDocumentService readService;
     private final IndexingService indexingService;
-
     private final DeleteDocumentBroadcast broadcast;
 
     private final Lock deleteLock = new ReentrantLock(true);
@@ -67,6 +64,7 @@ public class DeleteDocumentService {
                     deleteDocumentFromCollectionAndIndex(collection,document);
                 }
             }
+            broadcast.broadcastDeleteManyDocumentsChange(databaseName,collectionName,documentIds);
             return true;
         }
         finally {
@@ -78,16 +76,23 @@ public class DeleteDocumentService {
     public boolean deleteDocumentByID(String databaseName, String collectionName, String documentID) throws JsonProcessingException {
         DocumentsCollection collection;
         Document document;
-            collection = readCollection(databaseName,collectionName);
-            document = readDocument(collection,documentID);
-            if(document == null)
+        try {
+            deleteLock.lock();
+            collection = readCollection(databaseName, collectionName);
+            document = readDocument(collection, documentID);
+            if (document == null)
                 return false;
-            boolean isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
-            if(isDocumentDeleted){
-                deleteDocumentFromCollectionAndIndex(collection,document);
+            boolean isDocumentDeleted = deleteDocument(databaseName, collectionName, document);
+            if (isDocumentDeleted) {
+                deleteDocumentFromCollectionAndIndex(collection, document);
+                broadcast.broadcastDeleteDocumentChange(databaseName,collectionName,document.getId());
                 return true;
             }
             return false;
+        }finally {
+            deleteLock.unlock();
+        }
+
         }
 
     private boolean deleteDocument(String databaseName, String collectionName, Document document){

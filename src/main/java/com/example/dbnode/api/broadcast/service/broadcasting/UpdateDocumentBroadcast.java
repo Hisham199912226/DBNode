@@ -9,23 +9,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DeleteDocumentBroadcast {
-
+public class UpdateDocumentBroadcast {
     private final RetrieveClusterInfoService clusterInfoService;
     private List<Node> clusterInfo = new ArrayList<>();
     private final WebClient webClient;
 
-    public void broadcastDeleteDocumentChange(String databaseName, String collectionName, String id){
+    public void broadcastUpdateDocumentChange(String databaseName, String collectionName, String newContent, String id){
         getClusterInfo();
         System.out.println(clusterInfo);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
                     .uri(getBroadcastDeleteDocumentPath(databaseName,collectionName,node,id))
+                    .bodyValue(newContent)
                     .retrieve()
                     .toEntity(String.class);
             response.block();
@@ -35,28 +36,8 @@ public class DeleteDocumentBroadcast {
     private String getBroadcastDeleteDocumentPath(String databaseName, String collectionName, Node node, String id){
         return "http://" + node.getIpAddress() + ":" +
                 node.getPort() +
-                "/node/broadcast/document/delete/one/" +
+                "/node/broadcast/document/update/one/" +
                 databaseName + "/" + collectionName + "?id=" + id;
-    }
-
-    public void broadcastDeleteManyDocumentsChange(String databaseName, String collectionName, List<String> ids){
-        getClusterInfo();
-        System.out.println(clusterInfo);
-        for(Node node : clusterInfo){
-            Mono<ResponseEntity<String>> response = webClient.post()
-                    .uri(getBroadcastDeleteManyDocumentsPath(databaseName,collectionName,node))
-                    .bodyValue(ids)
-                    .retrieve()
-                    .toEntity(String.class);
-            response.block();
-        }
-    }
-
-    private String getBroadcastDeleteManyDocumentsPath(String databaseName, String collectionName, Node node){
-        return "http://" + node.getIpAddress() + ":" +
-                node.getPort() +
-                "/node/broadcast/document/delete/many/" +
-                databaseName + "/" + collectionName;
     }
 
     private void getClusterInfo(){
@@ -64,4 +45,5 @@ public class DeleteDocumentBroadcast {
             clusterInfo = clusterInfoService.getClusterInfo();
         }
     }
+
 }

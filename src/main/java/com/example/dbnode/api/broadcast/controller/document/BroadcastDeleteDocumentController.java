@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class BroadcastDeleteDocumentController {
@@ -20,5 +22,13 @@ public class BroadcastDeleteDocumentController {
         if(isDocumentDeleted)
             return ResponseEntityCreator.getResponse(HttpStatus.CREATED,"Document was successfully deleted!");
         return ResponseEntityCreator.getResponse(HttpStatus.BAD_REQUEST,"There is a problem with delete document received from a broadcast message!");
+    }
+
+    @PostMapping("node/broadcast/document/delete/many/{databaseName}/{collectionName}")
+    public ResponseEntity<String> deleteManyDocuments(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody List<String> ids) throws JsonProcessingException {
+        boolean isDocumentsDeleted = broadcastDeleteDocumentService.deleteManyDocuments(databaseName,collectionName,ids);
+        if(isDocumentsDeleted)
+            return ResponseEntityCreator.getResponse(HttpStatus.OK,"Documents were successfully deleted!");
+        return ResponseEntityCreator.getResponse(HttpStatus.BAD_REQUEST,"There is a problem with delete documents received from a broadcast message!");
     }
 }

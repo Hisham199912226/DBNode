@@ -1,5 +1,6 @@
 package com.example.dbnode.api.client.service.document;
 
+import com.example.dbnode.api.broadcast.service.broadcasting.UpdateDocumentBroadcast;
 import com.example.dbnode.api.client.model.Document;
 import com.example.dbnode.api.client.model.DocumentsCollection;
 import com.example.dbnode.api.client.service.IndexingService;
@@ -21,6 +22,7 @@ public class UpdateDocumentService {
     private final DAO dao;
     private final ReadDocumentService readService;
     private final IndexingService indexingService;
+    private final UpdateDocumentBroadcast broadcast;
     private static final ReentrantLock lock = new ReentrantLock(true);
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -65,6 +67,7 @@ public class UpdateDocumentService {
            // System.out.println(Thread.currentThread().getName() + " Try again!");
             return updateDocumentByID(databaseName, collectionName, documentID, newContent);
         }
+        broadcast.broadcastUpdateDocumentChange(databaseName,collectionName,newDoc.toString(),documentID);
         return true;
     }
 
