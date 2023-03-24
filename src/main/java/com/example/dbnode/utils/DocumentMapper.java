@@ -1,6 +1,6 @@
 package com.example.dbnode.utils;
 
-import com.example.dbnode.api.model.Document;
+import com.example.dbnode.api.client.model.Document;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;

@@ -1,8 +1,8 @@
 package com.example.dbnode.database.dao;
 
 import com.example.dbnode.database.io.*;
-import com.example.dbnode.api.model.Document;
-import com.example.dbnode.api.model.DocumentsCollection;
+import com.example.dbnode.api.client.model.Document;
+import com.example.dbnode.api.client.model.DocumentsCollection;
 import com.example.dbnode.schema.*;
 import com.example.dbnode.utils.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,22 +62,30 @@ public class DatabaseDAO implements DAO {
     }
 
     @Override
-    public boolean addDocument(String databaseName, String collectionName, Document document) throws IOException {
+    public boolean generateIdAndAddDocument(String databaseName, String collectionName, Document document) throws IOException {
         if(databaseName == null || collectionName == null || document == null)
             throw new IllegalArgumentException();
         String documentID = DocumentIDGenerator.getUniqueID();
         document.getDocument().put("_id", documentID);
         document.setId(documentID);
+        return addDocument(databaseName,collectionName,document);
+    }
+
+    @Override
+    public boolean addDocument(String databaseName, String collectionName, Document document) throws IOException {
+        if(databaseName == null || collectionName == null || document == null)
+            throw new IllegalArgumentException();
+        System.out.println(document);
         String jsonObjectAsString = DocumentMapper.documentToJsonString(document);
         String path = constructPath(databaseName,collectionName);
         if(isCollectionEmpty(databaseName,collectionName)) {
             createSchemaFile(path,jsonObjectAsString);
-            return createDocumentFile(path,documentID,jsonObjectAsString);
+            return createDocumentFile(path,document.getId(),jsonObjectAsString);
         }
         else {
             String jsonSchema = getSchema(path);
             if(isJsonObjectValid(jsonSchema,jsonObjectAsString)){
-                return createDocumentFile(path,documentID,jsonObjectAsString);
+                return createDocumentFile(path,document.getId(),jsonObjectAsString);
             }
         }
         return false;

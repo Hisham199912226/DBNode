@@ -1,1 +1,0 @@
-{"hobbies":["football","reading","watch movies"],"name":"khaled","_id":"9B68EE60DF46870D2AABF658F0DCC7A9DB792D990CC323E04D3F88E39D97CCFC","version":1,"age":"22"}

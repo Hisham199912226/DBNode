@@ -39,6 +39,8 @@ public class IOOperations implements IO{
             File dir = new File(path, dirName);
             if (dir.exists()) {
                 deleteDirectory(dir);
+                if(dir.exists())
+                    dir.delete();
                 return true;
             }
             return false;
@@ -118,7 +120,7 @@ public class IOOperations implements IO{
             writeLock.lock();
             if(!fileToUpdate.exists())
                 return false;
-            try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileToUpdate));) {
+            try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileToUpdate))) {
                 bufferedWriter.write(newContent);
                 bufferedWriter.flush();
             }

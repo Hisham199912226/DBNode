@@ -1,6 +1,6 @@
 package com.example.dbnode.config;
 
-import com.example.dbnode.api.model.*;
+import com.example.dbnode.api.client.model.DocumentsCollection;
 import com.example.dbnode.cache.CacheLRU;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;

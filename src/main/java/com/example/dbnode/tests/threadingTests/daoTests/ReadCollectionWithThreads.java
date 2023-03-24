@@ -2,7 +2,7 @@ package com.example.dbnode.tests.threadingTests.daoTests;
 
 import com.example.dbnode.database.dao.DAO;
 import com.example.dbnode.database.dao.DatabaseDAO;
-import com.example.dbnode.api.model.DocumentsCollection;
+import com.example.dbnode.api.client.model.DocumentsCollection;
 import com.example.dbnode.utils.DocumentMapper;
 
 import java.io.IOException;

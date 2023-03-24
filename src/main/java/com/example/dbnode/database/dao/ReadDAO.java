@@ -2,8 +2,8 @@ package com.example.dbnode.database.dao;
 
 
 
-import com.example.dbnode.api.model.Document;
-import com.example.dbnode.api.model.DocumentsCollection;
+import com.example.dbnode.api.client.model.Document;
+import com.example.dbnode.api.client.model.DocumentsCollection;
 
 import java.io.IOException;
 import java.util.List;
