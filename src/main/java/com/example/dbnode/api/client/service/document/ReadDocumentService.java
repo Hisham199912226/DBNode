@@ -69,6 +69,7 @@ public class ReadDocumentService {
         if(jsonNode == null)
             throw new IllegalArgumentException();
         jsonNode.remove("version");
+        jsonNode.remove("owner");
         return DocumentMapper.jsonStringToDocument(jsonNode.toString());
     }
 
@@ -140,6 +141,7 @@ public class ReadDocumentService {
         ObjectNode properties = (ObjectNode) schemaNode.get("properties");
         properties.remove("_id");
         properties.remove("version");
+        properties.remove("owner");
         schemaNode.replace("properties",properties);
         ArrayNode required = (ArrayNode) schemaNode.get("required");
         for(int i = 0 ; i < required.size(); i++){

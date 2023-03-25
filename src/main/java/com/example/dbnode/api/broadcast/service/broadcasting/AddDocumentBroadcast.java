@@ -20,7 +20,7 @@ public class AddDocumentBroadcast {
 
     public void broadcastAddDocumentChange(String databaseName, String collectionName, String jsonObject, String id){
         getClusterInfo();
-        System.out.println(clusterInfo);
+        //System.out.println(clusterInfo);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
                     .uri(getBroadcastAddDocumentPath(databaseName,collectionName,node,id))

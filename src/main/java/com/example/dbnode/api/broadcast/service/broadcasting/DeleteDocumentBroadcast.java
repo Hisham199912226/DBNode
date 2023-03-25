@@ -39,25 +39,7 @@ public class DeleteDocumentBroadcast {
                 databaseName + "/" + collectionName + "?id=" + id;
     }
 
-    public void broadcastDeleteManyDocumentsChange(String databaseName, String collectionName, List<String> ids){
-        getClusterInfo();
-        System.out.println(clusterInfo);
-        for(Node node : clusterInfo){
-            Mono<ResponseEntity<String>> response = webClient.post()
-                    .uri(getBroadcastDeleteManyDocumentsPath(databaseName,collectionName,node))
-                    .bodyValue(ids)
-                    .retrieve()
-                    .toEntity(String.class);
-            response.block();
-        }
-    }
 
-    private String getBroadcastDeleteManyDocumentsPath(String databaseName, String collectionName, Node node){
-        return "http://" + node.getIpAddress() + ":" +
-                node.getPort() +
-                "/node/broadcast/document/delete/many/" +
-                databaseName + "/" + collectionName;
-    }
 
     private void getClusterInfo(){
         if(clusterInfo.isEmpty()) {

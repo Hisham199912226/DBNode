@@ -1,15 +1,19 @@
 package com.example.dbnode.api.client.service.document;
 
+import com.example.dbnode.api.bootstrap.model.Node;
 import com.example.dbnode.api.broadcast.service.broadcasting.UpdateDocumentBroadcast;
-import com.example.dbnode.api.client.model.Document;
-import com.example.dbnode.api.client.model.DocumentsCollection;
+import com.example.dbnode.api.client.model.*;
 import com.example.dbnode.api.client.service.IndexingService;
 import com.example.dbnode.database.dao.DAO;
 import com.example.dbnode.utils.DocumentMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,6 +29,9 @@ public class UpdateDocumentService {
     private final UpdateDocumentBroadcast broadcast;
     private static final ReentrantLock lock = new ReentrantLock(true);
     private static final ObjectMapper mapper = new ObjectMapper();
+    private final Node node;
+
+    private final WebClient webClient;
 
 
     public boolean updateOneDocument(String databaseName, String collectionName, String jsonObject, String newContent) throws IOException {
@@ -53,8 +60,11 @@ public class UpdateDocumentService {
             return false;
         }
         int currentVersion = (int) document.getDocument().get("version");
-       // System.out.println(Thread.currentThread().getName() +  " " + currentVersion);
-
+        Node affinityNode = getAffinityNode(document);
+        if(!affinityNode.equals(node)){
+            ResponseEntity<String> response = redirectUpdateQuery(databaseName,collectionName,affinityNode,documentID,newContent);
+            return response.getStatusCode() == HttpStatus.OK;
+        }
         JsonNode newDoc = mapper.readTree(document.DocumentAsString());
         JsonNode content = mapper.readTree(newContent);
         boolean success = traverseToUpdateLocally(newDoc, content);
@@ -64,27 +74,41 @@ public class UpdateDocumentService {
 
         boolean updated = tryUpdateDocument(databaseName, collectionName, currentVersion, newDoc,documentID);
         if (!updated) {
-           // System.out.println(Thread.currentThread().getName() + " Try again!");
             return updateDocumentByID(databaseName, collectionName, documentID, newContent);
         }
         broadcast.broadcastUpdateDocumentChange(databaseName,collectionName,newDoc.toString(),documentID);
         return true;
     }
 
-    private boolean traverseToUpdateLocally(JsonNode newDoc, JsonNode content) {
-        if (newDoc == null || content == null) {
-            throw new IllegalArgumentException("Both old and new documents must be non-null");
-        }
-        boolean success;
-        if (content.isObject()) {
-            success = updateObjectProperties(newDoc, content);
-        } else if (content.isArray()) {
-            success = updateArrayElements(newDoc, content);
-        } else {
-            success = updateSingleNode(newDoc, content);
-        }
-        return success;
+    private Node getAffinityNode(Document document) throws JsonProcessingException {
+        if(document == null)
+            throw new IllegalArgumentException();
+        JsonNode jsonNode = mapper.readValue(document.DocumentAsString(),JsonNode.class);
+        JsonNode ownerJsonNode = jsonNode.get("owner");
+        return mapper.treeToValue(ownerJsonNode, Node.class);
     }
+
+    private ResponseEntity<String> redirectUpdateQuery(String databaseName, String collectionName, Node affinityNode, String documentId, String newContent) {
+        if(databaseName == null || collectionName == null || affinityNode == null || documentId == null || newContent == null)
+            throw new IllegalArgumentException();
+        Mono<ResponseEntity<String>> response = webClient.put()
+                .uri(getRedirectUpdateDocumentPath(databaseName,collectionName,affinityNode,documentId))
+                .bodyValue(newContent)
+                .retrieve()
+                .toEntity(String.class);
+        return response.block();
+    }
+
+    private String getRedirectUpdateDocumentPath(String databaseName, String collectionName, Node node, String documentId){
+        if(databaseName == null || collectionName == null || node == null || documentId == null)
+            throw new IllegalArgumentException();
+        return "http://" + node.getIpAddress() + ":" +
+                node.getPort() +
+                "/node/redirect/update/document/" +
+                databaseName + "/" + collectionName + "?documentId=" + documentId ;
+    }
+
+
     private boolean updateObjectProperties(JsonNode newDoc, JsonNode content) {
         if(newDoc == null || content == null)
             throw new IllegalArgumentException();
@@ -125,6 +149,21 @@ public class UpdateDocumentService {
         }
         return success;
     }
+
+    private boolean traverseToUpdateLocally(JsonNode newDoc, JsonNode content) {
+        if (newDoc == null || content == null) {
+            throw new IllegalArgumentException("Both old and new documents must be non-null");
+        }
+        boolean success;
+        if (content.isObject()) {
+            success = updateObjectProperties(newDoc, content);
+        } else if (content.isArray()) {
+            success = updateArrayElements(newDoc, content);
+        } else {
+            success = updateSingleNode(newDoc, content);
+        }
+        return success;
+    }
     private boolean updateSingleNode(JsonNode newDoc, JsonNode content) {
         if(newDoc == null || content == null)
             throw new IllegalArgumentException();
@@ -137,11 +176,9 @@ public class UpdateDocumentService {
             DocumentsCollection collection = readService.readCollectionOfDocuments(databaseName, collectionName);
             Document document = collection.getDocuments().get(documentID);
             if (currentVersion == (int) document.getDocument().get("version")) {
-                //System.out.println(Thread.currentThread().getName() + " " + currentVersion);
                 ((ObjectNode) newDoc).put("version", newDoc.get("version").asInt() + 1);
                 readService.removeCollectionFromCache(collectionName);
                 dao.updateDocument(databaseName, collectionName, document, DocumentMapper.jsonStringToDocument(newDoc.toString()));
-               // System.out.println("document before updated" + document);
                 return true;
             }
         } finally {
