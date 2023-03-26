@@ -5,7 +5,11 @@ import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,6 +19,7 @@ public class CollectionController {
 
     @PostMapping("node/client/create/collection/{databaseName}/{collectionName}")
     public ResponseEntity<String> createCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName){
+
         if(!checkIfDatabaseExist(databaseName))
             return getResponse(HttpStatus.NOT_FOUND,DATABASE_NOT_EXIST_MESSAGE);
         boolean isCollectionCreated = collectionService.createCollection(databaseName,collectionName);
@@ -23,6 +28,7 @@ public class CollectionController {
         else
             return getResponse(HttpStatus.CONFLICT,"Collection you tried to create is already exist");
     }
+
 
     @DeleteMapping("node/client/delete/collection/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName){

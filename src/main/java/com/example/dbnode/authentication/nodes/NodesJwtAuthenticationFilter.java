@@ -1,6 +1,7 @@
 package com.example.dbnode.authentication.nodes;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ public class NodesJwtAuthenticationFilter implements Filter {
     private final NodesJwtService nodesJwtService;
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
@@ -28,7 +30,6 @@ public class NodesJwtAuthenticationFilter implements Filter {
         }
 
         String token = authorizationHeader.substring("Bearer".length()).trim();
-        System.out.println(token);
         boolean isTokenValid = nodesJwtService.validateToken(token);
         if(isTokenValid){
             System.out.println("Token is valid");
