@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DatabaseController {
     private final DatabaseService databaseService;
-    @PostMapping("node/create/database/{databaseName}")
+    @PostMapping("node/client/create/database/{databaseName}")
     public ResponseEntity<String> createDatabase(@PathVariable("databaseName") String databaseName){
         boolean isDatabaseCreated = databaseService.createDatabase(databaseName);
         if(isDatabaseCreated)
@@ -20,7 +20,7 @@ public class DatabaseController {
             return getResponse(HttpStatus.CONFLICT,"Database you tried to create is already exist");
     }
 
-    @DeleteMapping("node/delete/database/{databaseName}")
+    @DeleteMapping("node/client/delete/database/{databaseName}")
     public ResponseEntity<String> deleteDatabase(@PathVariable("databaseName") String databaseName){
         boolean isDatabaseDeleted = databaseService.deleteDatabase(databaseName);
         if(isDatabaseDeleted)
@@ -29,8 +29,8 @@ public class DatabaseController {
             return getResponse(HttpStatus.NOT_FOUND,"Database you tried to delete does not exist");
     }
 
-    @GetMapping("node/list/databases")
-    public ResponseEntity<String> listCollections(){
+    @GetMapping("node/client/list/databases")
+    public ResponseEntity<String> listDatabases(){
         return ResponseEntityCreator.getResponse(HttpStatus.OK,databaseService.listDatabases());
     }
 

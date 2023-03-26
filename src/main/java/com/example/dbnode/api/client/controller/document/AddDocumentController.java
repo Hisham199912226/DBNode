@@ -27,7 +27,7 @@ public class AddDocumentController {
     private final Node node;
 
 
-    @PostMapping("node/add/document/{databaseName}/{collectionName}")
+    @PostMapping("node/client/add/document/{databaseName}/{collectionName}")
     public ResponseEntity<String> addDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))

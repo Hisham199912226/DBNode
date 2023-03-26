@@ -17,7 +17,7 @@ public class ReadDocumentController {
     private final ReadDocumentService readService;
     private final PathValidationService pathValidationService;
 
-    @PostMapping("node/read/document/one/{databaseName}/{collectionName}")
+    @PostMapping("node/client/read/document/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> readOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
@@ -27,7 +27,7 @@ public class ReadDocumentController {
                 -> ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND, "Document not found!"));
     }
 
-    @PostMapping("node/read/document/many/{databaseName}/{collectionName}")
+    @PostMapping("node/client/read/document/many/{databaseName}/{collectionName}")
     public ResponseEntity<String> readManyDocuments(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
@@ -37,7 +37,7 @@ public class ReadDocumentController {
                 -> ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND, "Documents not found!"));
     }
 
-    @GetMapping("node/read/document/count/{databaseName}/{collectionName}")
+    @GetMapping("node/client/read/document/count/{databaseName}/{collectionName}")
     public ResponseEntity<String> countDocuments(@PathVariable String databaseName, @PathVariable String collectionName){
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))

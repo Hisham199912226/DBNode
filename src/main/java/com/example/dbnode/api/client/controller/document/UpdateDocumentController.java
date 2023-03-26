@@ -17,7 +17,7 @@ public class UpdateDocumentController {
     private final UpdateDocumentService updateService;
     private final PathValidationService pathValidationService;
 
-    @PutMapping("node/update/document/one/{databaseName}/{collectionName}")
+    @PutMapping("node/client/update/document/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> updateOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody UpdateOneRequestBody updateOneRequestBody) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
@@ -32,7 +32,7 @@ public class UpdateDocumentController {
                 "and you did not violate the collection schema");
     }
 
-    @PutMapping("node/update/document/{databaseName}/{collectionName}/{id}")
+    @PutMapping("node/client/update/document/{databaseName}/{collectionName}/{id}")
     public ResponseEntity<String> updateDocumentByID(@PathVariable String databaseName, @PathVariable String collectionName, @PathVariable String id, @RequestBody String newContent) throws IOException {
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))

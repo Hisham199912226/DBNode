@@ -13,7 +13,7 @@ public class CollectionController {
     private final CollectionService collectionService;
     private static final String DATABASE_NOT_EXIST_MESSAGE = "Database you provided does not exist";
 
-    @PostMapping("node/create/collection/{databaseName}/{collectionName}")
+    @PostMapping("node/client/create/collection/{databaseName}/{collectionName}")
     public ResponseEntity<String> createCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName){
         if(!checkIfDatabaseExist(databaseName))
             return getResponse(HttpStatus.NOT_FOUND,DATABASE_NOT_EXIST_MESSAGE);
@@ -24,7 +24,7 @@ public class CollectionController {
             return getResponse(HttpStatus.CONFLICT,"Collection you tried to create is already exist");
     }
 
-    @DeleteMapping("node/delete/collection/{databaseName}/{collectionName}")
+    @DeleteMapping("node/client/delete/collection/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName){
         if(!checkIfDatabaseExist(databaseName))
             return getResponse(HttpStatus.NOT_FOUND,DATABASE_NOT_EXIST_MESSAGE);
@@ -35,7 +35,7 @@ public class CollectionController {
             return getResponse(HttpStatus.NOT_FOUND,"Collection you tried to delete does not exist");
     }
 
-    @GetMapping("node/list/collections/{databaseName}")
+    @GetMapping("node/client/list/collections/{databaseName}")
     public ResponseEntity<String> listCollections(@PathVariable String databaseName){
         if(!checkIfDatabaseExist(databaseName))
             return getResponse(HttpStatus.NOT_FOUND,DATABASE_NOT_EXIST_MESSAGE);

@@ -45,6 +45,8 @@ public class DatabaseService {
         StringBuilder stringBuilder = new StringBuilder("Databases:\n");
         int i = 1;
         for(String databaseName : listOfDatabases){
+            if(databaseName.equals("users"))
+                continue;
             stringBuilder.append(i).append("- ").append(databaseName).append("\n");
             i++;
         }

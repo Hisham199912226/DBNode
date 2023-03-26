@@ -20,16 +20,22 @@ public class AddDocumentService {
 
     public boolean generateIdAndAddDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
         Document document = DocumentMapper.jsonStringToDocument(jsonObject);
-        document.getDocument().put("version",1);
-        document.getDocument().put("owner", node);
+        if(!isUsersDatabase(databaseName)) {
+            document.getDocument().put("version", 1);
+            document.getDocument().put("owner", node);
+        }
         readService.removeCollectionFromCache(collectionName);
         boolean isDocumentCreated = dao.generateIdAndAddDocument(databaseName,collectionName,document);
         if(isDocumentCreated) {
-            if(!databaseName.equals("users"))
+            if(!isUsersDatabase(databaseName))
                 broadcast.broadcastAddDocumentChange(databaseName,collectionName,DocumentMapper.documentToJsonString(document),document.getId());
             return true;
         }
         return false;
+    }
+
+    private final boolean isUsersDatabase(String databaseName){
+        return databaseName.equals("users");
     }
 
 

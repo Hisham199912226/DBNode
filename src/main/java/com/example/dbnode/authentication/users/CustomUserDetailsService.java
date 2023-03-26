@@ -1,4 +1,4 @@
-package com.example.dbnode.authentication;
+package com.example.dbnode.authentication.users;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
