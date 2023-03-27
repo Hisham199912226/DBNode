@@ -17,7 +17,8 @@ public class CollectionService {
     public boolean createCollection(String databaseName, String collectionName){
         boolean isCollectionCreated =  dao.createCollection(databaseName,collectionName);
         if(isCollectionCreated){
-            broadcast.broadcastCreateCollectionChange(databaseName,collectionName);
+            if(!databaseName.equals("db_system"))
+                broadcast.broadcastCreateCollectionChange(databaseName,collectionName);
             return true;
         }
         return false;
@@ -26,7 +27,8 @@ public class CollectionService {
     public boolean deleteCollection(String databaseName, String collectionName){
         boolean isCollectionDeleted =  dao.deleteCollection(databaseName,collectionName);
         if(isCollectionDeleted){
-            broadcast.broadcastDeleteCollectionChange(databaseName,collectionName);
+            if(!databaseName.equals("db_system"))
+                broadcast.broadcastDeleteCollectionChange(databaseName,collectionName);
             return true;
         }
         return false;

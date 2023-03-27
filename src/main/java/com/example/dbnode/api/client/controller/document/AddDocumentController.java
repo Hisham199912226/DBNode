@@ -29,6 +29,9 @@ public class AddDocumentController {
 
     @PostMapping("node/client/add/document/{databaseName}/{collectionName}")
     public ResponseEntity<String> addDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
+        if(databaseName.equals("db_system"))
+            return preventAddToSystemDatabase();
+
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
@@ -63,4 +66,9 @@ public class AddDocumentController {
                 "/node/redirect/add/document/" +
                 databaseName + "/" + collectionName;
     }
+
+    private ResponseEntity<String> preventAddToSystemDatabase(){
+        return ResponseEntityCreator.getResponse(HttpStatus.FORBIDDEN,"you cannot add info to db_system");
+    }
+
 }

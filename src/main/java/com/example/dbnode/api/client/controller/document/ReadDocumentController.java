@@ -6,9 +6,11 @@ import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -18,7 +20,9 @@ public class ReadDocumentController {
     private final PathValidationService pathValidationService;
 
     @PostMapping("node/client/read/document/one/{databaseName}/{collectionName}")
-    public ResponseEntity<String> readOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
+    public ResponseEntity<String> readOneDocument(Principal principal, @PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
+        if(databaseName.equals("db_system") && hasRole(principal,"USER"))
+            return ResponseEntityCreator.getResponse(HttpStatus.UNAUTHORIZED,"you cannot read from db_system as user");
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
@@ -28,7 +32,9 @@ public class ReadDocumentController {
     }
 
     @PostMapping("node/client/read/document/many/{databaseName}/{collectionName}")
-    public ResponseEntity<String> readManyDocuments(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
+    public ResponseEntity<String> readManyDocuments(Principal principal, @PathVariable String databaseName, @PathVariable String collectionName, @RequestBody String jsonObject) throws IOException {
+        if(databaseName.equals("db_system") && hasRole(principal,"USER"))
+            return ResponseEntityCreator.getResponse(HttpStatus.UNAUTHORIZED,"you cannot read from db_system as user");
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
@@ -38,7 +44,9 @@ public class ReadDocumentController {
     }
 
     @GetMapping("node/client/read/document/count/{databaseName}/{collectionName}")
-    public ResponseEntity<String> countDocuments(@PathVariable String databaseName, @PathVariable String collectionName){
+    public ResponseEntity<String> countDocuments(Principal principal, @PathVariable String databaseName, @PathVariable String collectionName){
+        if(databaseName.equals("db_system") && hasRole(principal,"USER"))
+            return ResponseEntityCreator.getResponse(HttpStatus.UNAUTHORIZED,"you cannot read from db_system as user");
         ResponseEntity<String> response = pathValidationService.checkPath(databaseName,collectionName);
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
@@ -46,5 +54,13 @@ public class ReadDocumentController {
         return ResponseEntityCreator.getResponse(HttpStatus.OK,documentsCount);
     }
 
+    private boolean hasRole(Principal principal, String roleName) {
+        if (principal instanceof Authentication) {
+            Authentication authentication = (Authentication) principal;
+            return authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals(roleName));
+        }
+        return false;
+    }
 
 }

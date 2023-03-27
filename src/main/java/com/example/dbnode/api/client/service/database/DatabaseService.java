@@ -15,7 +15,8 @@ public class DatabaseService {
     public boolean createDatabase(String databaseName){
         boolean isDatabaseCreated = dao.createDatabase(databaseName);
         if(isDatabaseCreated) {
-            broadcast.broadcastCreateDatabaseChange(databaseName);
+            if(!databaseName.equals("db_system"))
+                broadcast.broadcastCreateDatabaseChange(databaseName);
             return true;
         }
         return false;
@@ -24,7 +25,8 @@ public class DatabaseService {
     public boolean deleteDatabase(String databaseName){
         boolean isDatabaseDeleted = dao.deleteDatabase(databaseName);
         if(isDatabaseDeleted) {
-            broadcast.broadcastDeleteDatabaseChange(databaseName);
+            if(!databaseName.equals("db_system"))
+                broadcast.broadcastDeleteDatabaseChange(databaseName);
             return true;
         }
         return false;
@@ -45,7 +47,7 @@ public class DatabaseService {
         StringBuilder stringBuilder = new StringBuilder("Databases:\n");
         int i = 1;
         for(String databaseName : listOfDatabases){
-            if(databaseName.equals("users"))
+            if(databaseName.equals("db_system"))
                 continue;
             stringBuilder.append(i).append("- ").append(databaseName).append("\n");
             i++;

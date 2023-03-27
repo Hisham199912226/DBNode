@@ -34,7 +34,7 @@ public class CheckUserController {
         return ResponseEntityCreator.getResponse(HttpStatus.OK, "This user does not belong to me");
     }
     private boolean isUserAlreadyRegistered(String searchValue) throws IOException {
-        Optional<String> result = readDocumentService.readDocument("users","users",searchValue);
+        Optional<String> result = readDocumentService.readDocument("db_system","users",searchValue);
         return result.isPresent();
     }
 

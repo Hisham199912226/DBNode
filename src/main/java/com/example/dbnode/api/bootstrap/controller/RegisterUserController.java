@@ -20,14 +20,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RegisterUserController {
     private final AddDocumentService addDocumentService;
-
     private final PasswordEncoder encoder;
 
     @PostMapping("node/bootstrap/register/user")
     public ResponseEntity<String> registerUser(@RequestBody String jsonUser) throws IOException {
         jsonUser = getJsonUserWithEncodedPassword(jsonUser);
         System.out.println(jsonUser);
-        addDocumentService.generateIdAndAddDocument("users", "users", jsonUser);
+        addDocumentService.generateIdAndAddDocument("db_system", "users", jsonUser);
         return ResponseEntityCreator.getResponse(HttpStatus.OK, "User Registered Successfully");
     }
 
@@ -35,16 +34,12 @@ public class RegisterUserController {
         ObjectNode objectNode = new ObjectMapper().readValue(jsonUser, ObjectNode.class);
         JsonNode passwordNode = objectNode.get("password");
         String encodedPassword = encodePassword(passwordNode);
-        System.out.println("encodedPassword : "  + encodedPassword);
         objectNode.put("password",encodedPassword);
-        System.out.println("ObjectNode " + objectNode);
         return objectNode.toString();
     }
     private String encodePassword(JsonNode passwordNode)  {
         String password = passwordNode.toString();
         password = password.replace("\"","");
-        System.out.println(password);
-        System.out.println(encoder.encode(password));
         return encoder.encode(password);
     }
 

@@ -47,7 +47,7 @@ public class DeleteDocumentService {
             isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
             if(isDocumentDeleted[0]){
                 deleteDocumentFromCollectionAndIndex(collection,document);
-                if(isDocumentDeleted[1] && !databaseName.equals("users"))
+                if(isDocumentDeleted[1] && !databaseName.equals("db_system"))
                     broadcast.broadcastDeleteDocumentChange(databaseName,collectionName,document.getId());
                 return true;
             }

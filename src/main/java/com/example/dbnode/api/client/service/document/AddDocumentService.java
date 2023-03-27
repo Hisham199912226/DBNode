@@ -35,7 +35,7 @@ public class AddDocumentService {
     }
 
     private final boolean isUsersDatabase(String databaseName){
-        return databaseName.equals("users");
+        return databaseName.equals("db_system");
     }
 
 

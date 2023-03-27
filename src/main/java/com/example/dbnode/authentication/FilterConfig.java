@@ -20,11 +20,4 @@ public class FilterConfig {
         return registrationBean;
     }
 
-    /*@Bean
-    public FilterRegistrationBean<UserJwtAuthenticationFilter> UserjwtAuthenticationFilterRegistrationBean(){
-        FilterRegistrationBean<UserJwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<UserJwtAuthenticationFilter>();
-        registrationBean.setFilter(new UserJwtAuthenticationFilter(new UserJwtService()));
-        registrationBean.addUrlPatterns("/node/client/*");
-        return registrationBean;
-    }*/
 }
