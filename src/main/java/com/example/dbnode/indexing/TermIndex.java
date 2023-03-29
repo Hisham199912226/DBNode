@@ -113,7 +113,7 @@ public class TermIndex implements Index{
     public List<String> findBySingleValue(String value) {
         if(value == null)
             throw new IllegalArgumentException();
-        value = value.toLowerCase().intern();
+        value = value;
         lock.readLock().lock();
         try {
             HashSet<Integer> result = new HashSet<>();
@@ -135,7 +135,7 @@ public class TermIndex implements Index{
         lock.readLock().lock();
         try {
             for(String value : values){
-                String value1 = value.toLowerCase().intern();
+                String value1 = value;
                 if(!postings.containsKey(value1))
                     return Collections.emptyList();
                 results.add(new HashSet<>(postings.get(value1)));
