@@ -11,7 +11,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CollectionService {
     private final DatabaseDAO dao;
-
     private final CollectionBroadcast broadcast;
 
     public boolean createCollection(String databaseName, String collectionName){

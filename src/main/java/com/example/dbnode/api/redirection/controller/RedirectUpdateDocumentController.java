@@ -18,7 +18,6 @@ public class RedirectUpdateDocumentController {
     @PutMapping("node/redirect/update/document/{databaseName}/{collectionName}")
     public ResponseEntity<String> updateRedirectedDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestParam String documentId, @RequestBody String newContent) throws IOException {
         boolean isDocumentUpdated = updateDocumentService.updateDocumentByID(databaseName,collectionName,documentId,newContent);
-        System.out.println("document with id : " + documentId + " redirected to me (updateRedirectedDocument)");
         if(isDocumentUpdated)
             return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document was successfully updated!");
 

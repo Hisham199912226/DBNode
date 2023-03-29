@@ -31,11 +31,7 @@ public class NodesJwtAuthenticationFilter implements Filter {
 
         String token = authorizationHeader.substring("Bearer".length()).trim();
         boolean isTokenValid = nodesJwtService.validateToken(token);
-        if(isTokenValid){
-            System.out.println("Token is valid");
-        }
-        else {
-            System.out.println("Token is not valid");
+        if (!isTokenValid) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
             return;
         }

@@ -138,6 +138,7 @@ public class DeleteDocumentService {
         Mono<ResponseEntity<String>> response = webClient.delete()
                 .uri(getRedirectDeleteDocumentPath(databaseName,collectionName,affinityNode,documentId))
                 .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.empty())
                 .toEntity(String.class);
         return response.block();
     }

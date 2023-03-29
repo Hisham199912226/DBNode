@@ -4,8 +4,7 @@ import com.example.dbnode.api.client.service.PathValidationService;
 import com.example.dbnode.api.client.service.document.ReadDocumentService;
 import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 

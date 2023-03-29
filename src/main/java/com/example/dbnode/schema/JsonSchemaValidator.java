@@ -8,9 +8,6 @@ import org.json.JSONObject;
 
 public class JsonSchemaValidator {
 
-    private JsonSchemaValidator(){
-
-    }
 
     public static boolean validateJsonObject(String jsonSchema,String jsonObject){
         Schema schema = SchemaLoader.load(new JSONObject(jsonSchema));

@@ -16,7 +16,6 @@ public class RedirectDeleteDocumentController {
     @DeleteMapping("node/redirect/delete/document/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteRedirectedDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestParam String documentId) throws IOException {
         boolean isDocumentDeleted = deleteService.deleteDocumentByID(databaseName,collectionName,documentId);
-        System.out.println("document with id : " + documentId + " redirected to me (deleteRedirectedDocument)");
         if(isDocumentDeleted)
             return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document was successfully deleted!");
         return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Document not found to delete!\n");

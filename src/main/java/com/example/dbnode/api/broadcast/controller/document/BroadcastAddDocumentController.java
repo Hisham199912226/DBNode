@@ -3,8 +3,7 @@ package com.example.dbnode.api.broadcast.controller.document;
 import com.example.dbnode.api.broadcast.service.document.BroadcastAddDocumentService;
 import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;

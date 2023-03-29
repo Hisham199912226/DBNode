@@ -22,7 +22,6 @@ public class DeleteDocumentBroadcast {
 
     public void broadcastDeleteDocumentChange(String databaseName, String collectionName, String id){
         getClusterInfo();
-        System.out.println(clusterInfo);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
                     .uri(getBroadcastDeleteDocumentPath(databaseName,collectionName,node,id))

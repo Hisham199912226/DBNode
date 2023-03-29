@@ -1,7 +1,6 @@
 package com.example.dbnode.api.client.service;
 
-import com.example.dbnode.authentication.users.CustomUserDetails;
-import com.example.dbnode.authentication.users.UserJwtService;
+import com.example.dbnode.authentication.users.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
 import org.springframework.stereotype.Service;

@@ -3,8 +3,7 @@ package com.example.dbnode.api.client.controller.document;
 import com.example.dbnode.api.bootstrap.model.Node;
 import com.example.dbnode.api.bootstrap.service.AffinityService;
 import com.example.dbnode.api.client.service.PathValidationService;
-import com.example.dbnode.api.client.service.document.AddDocumentService;
-import com.example.dbnode.api.client.service.document.ReadDocumentService;
+import com.example.dbnode.api.client.service.document.*;
 
 import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +36,6 @@ public class AddDocumentController {
             return response;
         Node affinityNode = affinityService.getWriteAffinity();
         if(!isMyAffinityToWrite(affinityNode)){
-            System.out.println("redirect query");
-            System.out.println("Affinity node : " + affinityNode);
             return redirectAddQuery(databaseName,collectionName,affinityNode,jsonObject);
         }
         boolean isDocumentCreated = addService.generateIdAndAddDocument(databaseName,collectionName,jsonObject);
@@ -56,6 +53,7 @@ public class AddDocumentController {
                     .uri(getRedirectAddDocumentPath(databaseName,collectionName,affinityNode))
                     .bodyValue(jsonObject)
                     .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.empty())
                     .toEntity(String.class);
             return response.block();
     }

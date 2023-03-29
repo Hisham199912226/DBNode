@@ -77,7 +77,6 @@ public class ReadDocumentService {
         if(databaseName == null || collectionName == null || jsonObject == null)
             throw new IllegalArgumentException();
         DocumentsCollection collection = readCollectionOfDocuments(databaseName,collectionName);
-        System.out.println("readDocuments : " + collectionName + " " + collection);
         String jsonString;
 
         if(isAllDocumentsQuery(jsonObject)){

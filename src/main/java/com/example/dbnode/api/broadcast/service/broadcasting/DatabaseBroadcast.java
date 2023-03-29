@@ -21,7 +21,6 @@ public class DatabaseBroadcast {
 
     public void broadcastCreateDatabaseChange(String databaseName){
         getClusterInfo();
-        System.out.println(clusterInfo);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
                     .uri(getBroadcastCreateDatabasePath(databaseName,node))
@@ -41,7 +40,6 @@ public class DatabaseBroadcast {
 
     public void broadcastDeleteDatabaseChange(String databaseName){
         getClusterInfo();
-        System.out.println(clusterInfo);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
                     .uri(getBroadcastDeleteDatabasePath(databaseName,node))

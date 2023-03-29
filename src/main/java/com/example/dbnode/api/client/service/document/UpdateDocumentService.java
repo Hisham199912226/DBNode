@@ -37,8 +37,6 @@ public class UpdateDocumentService {
     public boolean updateOneDocument(String databaseName, String collectionName, String jsonObject, String newContent) throws IOException {
         DocumentsCollection collection = readService.readCollectionOfDocuments(databaseName,collectionName);
         List<String> documentIds = indexingService.searchInIndex(collection,jsonObject);
-        System.out.println(documentIds);
-        System.out.println(collection.getIndex());
         if(isResultEmpty(documentIds)) {
             return false;
         }
@@ -95,6 +93,7 @@ public class UpdateDocumentService {
                 .uri(getRedirectUpdateDocumentPath(databaseName,collectionName,affinityNode,documentId))
                 .bodyValue(newContent)
                 .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.empty())
                 .toEntity(String.class);
         return response.block();
     }

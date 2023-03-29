@@ -4,12 +4,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 
 @Data
 @NoArgsConstructor

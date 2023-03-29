@@ -40,7 +40,6 @@ public class CollectionBroadcast {
 
     public void broadcastDeleteCollectionChange(String databaseName, String collectionName){
         getClusterInfo();
-        System.out.println(clusterInfo);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
                     .uri(getBroadcastDeleteCollectionPath(databaseName,collectionName,node))

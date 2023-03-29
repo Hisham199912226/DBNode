@@ -17,7 +17,6 @@ public class AddJwtTokenFilter implements ExchangeFilterFunction {
         ClientRequest authorizedRequest = ClientRequest.from(request)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
                 .build();
-        System.out.println("Token was added to outgoing web client request");
         return next.exchange(authorizedRequest);
     }
 }

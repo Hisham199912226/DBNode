@@ -3,8 +3,7 @@ package com.example.dbnode.api.client.controller.database;
 import com.example.dbnode.api.client.service.database.DatabaseService;
 import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

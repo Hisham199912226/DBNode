@@ -75,7 +75,6 @@ public class DatabaseDAO implements DAO {
     public boolean addDocument(String databaseName, String collectionName, Document document) throws IOException {
         if(databaseName == null || collectionName == null || document == null)
             throw new IllegalArgumentException();
-        System.out.println(document);
         String jsonObjectAsString = DocumentMapper.documentToJsonString(document);
         String path = constructPath(databaseName,collectionName);
         if(isCollectionEmpty(databaseName,collectionName)) {
@@ -119,9 +118,7 @@ public class DatabaseDAO implements DAO {
         return DocumentMapper.fileToDocument(file).DocumentAsString();
     }
     private boolean isJsonObjectValid(String jsonSchema, String jsonObject){
-       boolean f =  JsonSchemaValidator.validateJsonObject(jsonSchema,jsonObject);
-        System.out.println(f);
-       return f;
+        return JsonSchemaValidator.validateJsonObject(jsonSchema,jsonObject);
     }
 
     @Override

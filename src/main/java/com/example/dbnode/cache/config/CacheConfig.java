@@ -1,4 +1,4 @@
-package com.example.dbnode.config;
+package com.example.dbnode.cache.config;
 
 import com.example.dbnode.api.client.model.DocumentsCollection;
 import com.example.dbnode.cache.CacheLRU;

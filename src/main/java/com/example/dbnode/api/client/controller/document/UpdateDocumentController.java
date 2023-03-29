@@ -5,8 +5,7 @@ import com.example.dbnode.api.client.service.document.UpdateDocumentService;
 import com.example.dbnode.api.client.model.UpdateOneRequestBody;
 import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;

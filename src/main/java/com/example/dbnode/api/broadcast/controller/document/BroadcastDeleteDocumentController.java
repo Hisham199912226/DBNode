@@ -4,8 +4,7 @@ import com.example.dbnode.api.broadcast.service.document.BroadcastDeleteDocument
 import com.example.dbnode.utils.ResponseEntityCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
