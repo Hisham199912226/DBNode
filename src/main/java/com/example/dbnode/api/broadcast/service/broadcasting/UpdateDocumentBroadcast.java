@@ -22,9 +22,10 @@ public class UpdateDocumentBroadcast {
 
     public void broadcastUpdateDocumentChange(String databaseName, String collectionName, String newContent, String id){
         getClusterInfo();
+        System.out.println(clusterInfoService);
         for(Node node : clusterInfo){
             Mono<ResponseEntity<String>> response = webClient.post()
-                    .uri(getBroadcastDeleteDocumentPath(databaseName,collectionName,node,id))
+                    .uri(getBroadcastUpdateDocumentPath(databaseName,collectionName,node,id))
                     .bodyValue(newContent)
                     .retrieve()
                     .toEntity(String.class);
@@ -32,7 +33,7 @@ public class UpdateDocumentBroadcast {
         }
     }
 
-    private String getBroadcastDeleteDocumentPath(String databaseName, String collectionName, Node node, String id){
+    private String getBroadcastUpdateDocumentPath(String databaseName, String collectionName, Node node, String id){
         return "http://" + node.getIpAddress() + ":" +
                 node.getPort() +
                 "/node/broadcast/document/update/one/" +

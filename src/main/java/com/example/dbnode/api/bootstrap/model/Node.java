@@ -14,7 +14,8 @@ import java.net.*;
 @Component
 public class Node implements Serializable {
     private String ipAddress;
-
+    @Value("${node.name}")
+    private String nodeName;
     @Value("${server.port}")
     private int port;
 

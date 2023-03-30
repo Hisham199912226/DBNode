@@ -45,10 +45,11 @@ public class UpdateDocumentController {
         if(response.getStatusCode().equals(HttpStatus.NOT_FOUND))
             return response;
 
+        System.out.println("Pass Path validation step");
         boolean isDocumentUpdated = updateService.updateDocumentByID(databaseName,collectionName,id,newContent);
         if(isDocumentUpdated)
             return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document was successfully updated!");
-
+        System.out.println("Document Updated");
         return ResponseEntityCreator.getResponse(HttpStatus.BAD_REQUEST,"Failed to update! ensure that you provide an existing document id " +
                 "and you did not violate the collection schema");
     }

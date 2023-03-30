@@ -148,6 +148,8 @@ public class ReadDocumentService {
                 required.remove(i);
             if(required.get(i).asText().equals("version"))
                 required.remove(i);
+            if(required.get(i).asText().equals("owner"))
+                required.remove(i);
         }
         schemaNode.replace("required",required);
     }

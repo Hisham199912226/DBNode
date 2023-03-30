@@ -54,12 +54,15 @@ public class UpdateDocumentService {
     public boolean updateDocumentByID(String databaseName, String collectionName, String documentID, String newContent) throws IOException {
         DocumentsCollection collection = readService.readCollectionOfDocuments(databaseName,collectionName);
         Document document = collection.getDocuments().get(documentID);
+        System.out.println("Collection was read");
         if (document == null) {
             return false;
         }
+        System.out.println("document was read");
         int currentVersion = (int) document.getDocument().get("version");
         Node affinityNode = getAffinityNode(document);
-        if(!affinityNode.equals(node)){
+        System.out.println("affinityNode " + affinityNode);
+        if(!affinityNode.getNodeName().equals(node.getNodeName())){
             ResponseEntity<String> response = redirectUpdateQuery(databaseName,collectionName,affinityNode,documentID,newContent);
             return response.getStatusCode() == HttpStatus.OK;
         }
@@ -83,12 +86,14 @@ public class UpdateDocumentService {
             throw new IllegalArgumentException();
         JsonNode jsonNode = mapper.readValue(document.DocumentAsString(),JsonNode.class);
         JsonNode ownerJsonNode = jsonNode.get("owner");
+        System.out.println("getAffinityNode -- > " + ownerJsonNode);
         return mapper.treeToValue(ownerJsonNode, Node.class);
     }
 
     private ResponseEntity<String> redirectUpdateQuery(String databaseName, String collectionName, Node affinityNode, String documentId, String newContent) {
         if(databaseName == null || collectionName == null || affinityNode == null || documentId == null || newContent == null)
             throw new IllegalArgumentException();
+        System.out.println("redirectUpdateQuery");
         Mono<ResponseEntity<String>> response = webClient.put()
                 .uri(getRedirectUpdateDocumentPath(databaseName,collectionName,affinityNode,documentId))
                 .bodyValue(newContent)
@@ -101,10 +106,12 @@ public class UpdateDocumentService {
     private String getRedirectUpdateDocumentPath(String databaseName, String collectionName, Node node, String documentId){
         if(databaseName == null || collectionName == null || node == null || documentId == null)
             throw new IllegalArgumentException();
-        return "http://" + node.getIpAddress() + ":" +
+        String path =  "http://" + node.getNodeName() + ":" +
                 node.getPort() +
                 "/node/redirect/update/document/" +
                 databaseName + "/" + collectionName + "?documentId=" + documentId ;
+        System.out.println("PAth : " + path);
+        return path;
     }
 
 
