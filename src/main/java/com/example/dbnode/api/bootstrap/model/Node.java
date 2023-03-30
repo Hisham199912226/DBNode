@@ -24,7 +24,6 @@ public class Node implements Serializable {
     private void assignIpAddress() {
         try {
             this.ipAddress = InetAddress.getLocalHost().getHostAddress();
-            System.out.println(this);
         } catch (UnknownHostException e) {
             throw new RuntimeException("Unable to determine IP address", e);
         }

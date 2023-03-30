@@ -1,17 +1,17 @@
 package com.example.dbnode.api.client.service.document;
 
+import com.example.dbnode.utils.UrlBuilder;
+import com.example.dbnode.api.broadcast.service.HttpService;
 import com.example.dbnode.api.bootstrap.model.Node;
 import com.example.dbnode.api.broadcast.service.broadcasting.DeleteDocumentBroadcast;
 import com.example.dbnode.api.client.model.*;
 import com.example.dbnode.api.client.service.IndexingService;
-import com.example.dbnode.database.dao.DAO;;
+import com.example.dbnode.database.dao.DAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,12 +25,12 @@ public class DeleteDocumentService {
     private final ReadDocumentService readService;
     private final IndexingService indexingService;
     private final DeleteDocumentBroadcast broadcast;
-    private final WebClient webClient;
+    private final HttpService httpService;
     private final Node node;
     private final static  ObjectMapper objectMapper = new ObjectMapper();
-
-
     private final Lock deleteLock = new ReentrantLock(true);
+
+
     public boolean deleteOneDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
         DocumentsCollection collection;
         boolean[] isDocumentDeleted;
@@ -45,9 +45,9 @@ public class DeleteDocumentService {
             String documentId = documentIds.get(0);
             document = readDocument(collection,documentId);
             isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
-            if(isDocumentDeleted[0]){
+            if(isDocumentDeletedSuccessfully(isDocumentDeleted)){
                 deleteDocumentFromCollectionAndIndex(collection,document);
-                if(isDocumentDeleted[1] && !databaseName.equals("db_system"))
+                if(isDocumentOwnedByMe(isDocumentDeleted) && !databaseName.equals("db_system"))
                     broadcast.broadcastDeleteDocumentChange(databaseName,collectionName,document.getId());
                 return true;
             }
@@ -70,9 +70,9 @@ public class DeleteDocumentService {
             for(String documentId : documentIds){
                 Document document = readDocument(collection,documentId);
                 isDocumentDeleted = deleteDocument(databaseName,collectionName,document);
-                if(isDocumentDeleted[0]){
+                if(isDocumentDeletedSuccessfully(isDocumentDeleted)){
                     deleteDocumentFromCollectionAndIndex(collection,document);
-                    if(isDocumentDeleted[1])
+                    if(isDocumentOwnedByMe(isDocumentDeleted))
                         broadcast.broadcastDeleteDocumentChange(databaseName,collectionName,document.getId());
                 }
             }
@@ -94,9 +94,9 @@ public class DeleteDocumentService {
             if (document == null)
                 return false;
             boolean[] isDocumentDeleted = deleteDocument(databaseName, collectionName, document);
-            if (isDocumentDeleted[0]) {
+            if (isDocumentDeletedSuccessfully(isDocumentDeleted)) {
                 deleteDocumentFromCollectionAndIndex(collection, document);
-                if(isDocumentDeleted[1])
+                if(isDocumentOwnedByMe(isDocumentDeleted))
                     broadcast.broadcastDeleteDocumentChange(databaseName,collectionName,document.getId());
                 return true;
             }
@@ -104,15 +104,26 @@ public class DeleteDocumentService {
         }finally {
             deleteLock.unlock();
         }
+    }
 
-        }
+    private boolean isDocumentDeletedSuccessfully(boolean[] isDocumentDeleted){
+        if(isDocumentDeleted == null)
+            throw new IllegalArgumentException();
+        return isDocumentDeleted[0];
+    }
+
+    private boolean isDocumentOwnedByMe(boolean[] isDocumentDeleted){
+        if(isDocumentDeleted == null)
+            throw new IllegalArgumentException();
+        return isDocumentDeleted[1];
+    }
 
     private boolean[] deleteDocument(String databaseName, String collectionName, Document document) throws JsonProcessingException {
-        if(databaseName == null || collectionName == null)
+        if(databaseName == null || collectionName == null || document == null)
             throw new IllegalArgumentException();
         boolean[] result = new boolean[2];
         Node affinityNode = getAffinityNode(document);
-        if(affinityNode.equals(node)) {
+        if(affinityNode.getNodeName().equals(node.getNodeName())) {
             result[0] = dao.deleteDocument(databaseName, collectionName, document);
             result[1] = true; // in case of deleting by the same node
         }
@@ -135,21 +146,15 @@ public class DeleteDocumentService {
     private ResponseEntity<String> redirectDeleteQuery(String databaseName, String collectionName, Node affinityNode, String documentId){
         if(databaseName == null || collectionName == null || affinityNode == null || documentId == null)
             throw new IllegalArgumentException();
-        Mono<ResponseEntity<String>> response = webClient.delete()
-                .uri(getRedirectDeleteDocumentPath(databaseName,collectionName,affinityNode,documentId))
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.empty())
-                .toEntity(String.class);
-        return response.block();
+       return httpService.deleteMethod(getRedirectDeleteDocumentPath(databaseName,collectionName,affinityNode,documentId), String.class);
     }
 
     private String getRedirectDeleteDocumentPath(String databaseName, String collectionName, Node node, String documentId){
         if(databaseName == null || collectionName == null || node == null || documentId == null)
             throw new IllegalArgumentException();
-        return "http://" + node.getIpAddress() + ":" +
-                node.getPort() +
-                "/node/redirect/delete/document/" +
+        String path = "/node/redirect/delete/document/" +
                 databaseName + "/" + collectionName + "?documentId=" + documentId ;
+        return UrlBuilder.buildUrlString(node.getNodeName(),node.getPort(),path);
     }
 
     private DocumentsCollection readCollection(String databaseName, String collectionName) throws JsonProcessingException {

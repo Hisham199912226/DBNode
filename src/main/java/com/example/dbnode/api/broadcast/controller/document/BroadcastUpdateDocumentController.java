@@ -14,7 +14,7 @@ public class BroadcastUpdateDocumentController {
 
     private final BroadcastUpdateDocumentService broadcastUpdateDocumentService;
 
-    @PostMapping("node/broadcast/document/update/one/{databaseName}/{collectionName}")
+    @PutMapping("node/broadcast/document/update/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> updateDocument(@PathVariable String collectionName, @PathVariable String databaseName, @RequestBody String newContent, @RequestParam String id) throws IOException {
         boolean isDocumentUpdated = broadcastUpdateDocumentService.broadcastUpdateDocumentChange(databaseName,collectionName,newContent,id);
         if(isDocumentUpdated)

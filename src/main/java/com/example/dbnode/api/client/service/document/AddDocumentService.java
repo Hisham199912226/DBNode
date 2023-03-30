@@ -20,22 +20,24 @@ public class AddDocumentService {
 
     public boolean generateIdAndAddDocument(String databaseName, String collectionName, String jsonObject) throws IOException {
         Document document = DocumentMapper.jsonStringToDocument(jsonObject);
-        if(!isUsersDatabase(databaseName)) {
+        if(isNotUserDatabase(databaseName)) {
             document.getDocument().put("version", 1);
             document.getDocument().put("owner", node);
         }
         readService.removeCollectionFromCache(collectionName);
         boolean isDocumentCreated = dao.generateIdAndAddDocument(databaseName,collectionName,document);
         if(isDocumentCreated) {
-            if(!isUsersDatabase(databaseName))
+            if(isNotUserDatabase(databaseName))
                 broadcast.broadcastAddDocumentChange(databaseName,collectionName,DocumentMapper.documentToJsonString(document),document.getId());
             return true;
         }
         return false;
     }
 
-    private boolean isUsersDatabase(String databaseName){
-        return databaseName.equals("db_system");
+    private boolean isNotUserDatabase(String databaseName){
+        if(databaseName == null)
+            throw new IllegalArgumentException();
+        return !databaseName.equals("db_system");
     }
 
 

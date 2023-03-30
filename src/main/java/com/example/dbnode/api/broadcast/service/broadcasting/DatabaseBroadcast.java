@@ -1,12 +1,11 @@
 package com.example.dbnode.api.broadcast.service.broadcasting;
 
+import com.example.dbnode.utils.UrlBuilder;
+import com.example.dbnode.api.broadcast.service.HttpService;
 import com.example.dbnode.api.bootstrap.model.Node;
 import com.example.dbnode.api.bootstrap.service.RetrieveClusterInfoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,43 +16,33 @@ public class DatabaseBroadcast {
 
     private final RetrieveClusterInfoService clusterInfoService;
     private List<Node> clusterInfo = new ArrayList<>();
-    private final WebClient webClient;
+    private final HttpService httpService;
 
     public void broadcastCreateDatabaseChange(String databaseName){
         getClusterInfo();
         for(Node node : clusterInfo){
-            Mono<ResponseEntity<String>> response = webClient.post()
-                    .uri(getBroadcastCreateDatabasePath(databaseName,node))
-                    .retrieve()
-                    .toEntity(String.class);
-            response.block();
+            httpService.postMethod(getBroadcastCreateDatabasePath(databaseName,node),"", String.class);
         }
     }
 
     private String getBroadcastCreateDatabasePath(String databaseName, Node node){
-        return "http://" + node.getIpAddress() + ":" +
-                node.getPort() +
-                "/node/broadcast/database/create/" +
+        String path = "/node/broadcast/database/create/" +
                 databaseName;
+        return UrlBuilder.buildUrlString(node.getIpAddress(),node.getPort(),path);
     }
 
 
     public void broadcastDeleteDatabaseChange(String databaseName){
         getClusterInfo();
         for(Node node : clusterInfo){
-            Mono<ResponseEntity<String>> response = webClient.post()
-                    .uri(getBroadcastDeleteDatabasePath(databaseName,node))
-                    .retrieve()
-                    .toEntity(String.class);
-            response.block();
+            httpService.postMethod(getBroadcastDeleteDatabasePath(databaseName,node),"", String.class);
         }
     }
 
     private String getBroadcastDeleteDatabasePath(String databaseName, Node node){
-        return "http://" + node.getIpAddress() + ":" +
-                node.getPort() +
-                "/node/broadcast/database/delete/" +
+        String path = "/node/broadcast/database/delete/" +
                 databaseName;
+        return UrlBuilder.buildUrlString(node.getIpAddress(),node.getPort(),path);
     }
 
 

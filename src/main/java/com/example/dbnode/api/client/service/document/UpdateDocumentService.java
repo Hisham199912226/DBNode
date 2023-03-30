@@ -1,5 +1,7 @@
 package com.example.dbnode.api.client.service.document;
 
+import com.example.dbnode.utils.UrlBuilder;
+import com.example.dbnode.api.broadcast.service.HttpService;
 import com.example.dbnode.api.bootstrap.model.Node;
 import com.example.dbnode.api.broadcast.service.broadcasting.UpdateDocumentBroadcast;
 import com.example.dbnode.api.client.model.*;
@@ -12,8 +14,6 @@ import com.fasterxml.jackson.databind.node.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,7 +31,7 @@ public class UpdateDocumentService {
     private static final ObjectMapper mapper = new ObjectMapper();
     private final Node node;
 
-    private final WebClient webClient;
+    private final HttpService httpService;
 
 
     public boolean updateOneDocument(String databaseName, String collectionName, String jsonObject, String newContent) throws IOException {
@@ -54,14 +54,12 @@ public class UpdateDocumentService {
     public boolean updateDocumentByID(String databaseName, String collectionName, String documentID, String newContent) throws IOException {
         DocumentsCollection collection = readService.readCollectionOfDocuments(databaseName,collectionName);
         Document document = collection.getDocuments().get(documentID);
-        System.out.println("Collection was read");
         if (document == null) {
             return false;
         }
-        System.out.println("document was read");
+
         int currentVersion = (int) document.getDocument().get("version");
         Node affinityNode = getAffinityNode(document);
-        System.out.println("affinityNode " + affinityNode);
         if(!affinityNode.getNodeName().equals(node.getNodeName())){
             ResponseEntity<String> response = redirectUpdateQuery(databaseName,collectionName,affinityNode,documentID,newContent);
             return response.getStatusCode() == HttpStatus.OK;
@@ -86,32 +84,21 @@ public class UpdateDocumentService {
             throw new IllegalArgumentException();
         JsonNode jsonNode = mapper.readValue(document.DocumentAsString(),JsonNode.class);
         JsonNode ownerJsonNode = jsonNode.get("owner");
-        System.out.println("getAffinityNode -- > " + ownerJsonNode);
         return mapper.treeToValue(ownerJsonNode, Node.class);
     }
 
     private ResponseEntity<String> redirectUpdateQuery(String databaseName, String collectionName, Node affinityNode, String documentId, String newContent) {
         if(databaseName == null || collectionName == null || affinityNode == null || documentId == null || newContent == null)
             throw new IllegalArgumentException();
-        System.out.println("redirectUpdateQuery");
-        Mono<ResponseEntity<String>> response = webClient.put()
-                .uri(getRedirectUpdateDocumentPath(databaseName,collectionName,affinityNode,documentId))
-                .bodyValue(newContent)
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.empty())
-                .toEntity(String.class);
-        return response.block();
+        return httpService.putMethod(getRedirectUpdateDocumentPath(databaseName,collectionName,affinityNode,documentId),newContent, String.class);
     }
 
     private String getRedirectUpdateDocumentPath(String databaseName, String collectionName, Node node, String documentId){
         if(databaseName == null || collectionName == null || node == null || documentId == null)
             throw new IllegalArgumentException();
-        String path =  "http://" + node.getNodeName() + ":" +
-                node.getPort() +
-                "/node/redirect/update/document/" +
+        String path = "/node/redirect/update/document/" +
                 databaseName + "/" + collectionName + "?documentId=" + documentId ;
-        System.out.println("PAth : " + path);
-        return path;
+        return UrlBuilder.buildUrlString(node.getNodeName(),node.getPort(),path);
     }
 
 
