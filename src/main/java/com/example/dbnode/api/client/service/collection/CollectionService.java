@@ -21,8 +21,10 @@ public class CollectionService {
     public boolean createCollection(String databaseName, String collectionName,String jsonSchema) throws IOException {
         boolean isCollectionCreated =  dao.createCollection(databaseName,collectionName);
         Document document = DocumentMapper.jsonStringToDocument(jsonSchema);
-        document.getDocument().put("version", 1);
-        document.getDocument().put("owner", node);
+        if(isNotUserDatabase(databaseName)) {
+            document.getDocument().put("version", 1);
+            document.getDocument().put("owner", node);
+        }
         document.getDocument().put("_id", "");
         if(isCollectionCreated){
             dao.createSchemaFile(databaseName,collectionName,document.DocumentAsString());
@@ -31,6 +33,12 @@ public class CollectionService {
             return true;
         }
         return false;
+    }
+
+    private boolean isNotUserDatabase(String databaseName){
+        if(databaseName == null)
+            throw new IllegalArgumentException();
+        return !databaseName.equals("db_system");
     }
 
     public boolean deleteCollection(String databaseName, String collectionName){

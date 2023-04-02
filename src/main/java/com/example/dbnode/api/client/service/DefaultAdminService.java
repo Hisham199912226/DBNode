@@ -30,7 +30,7 @@ public class DefaultAdminService {
         if(databaseService.createDatabase("db_system")){
             collectionService.createCollection("db_system","users",jsonUser);
             jsonUser = getJsonUserWithEncodedPassword(jsonUser);
-            addDocumentService.generateIdAndAddDocument("db_system","users",jsonUser);
+            System.out.println(addDocumentService.generateIdAndAddDocument("db_system","users",jsonUser));
         }
     }
 
