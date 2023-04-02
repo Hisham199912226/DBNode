@@ -55,7 +55,7 @@ public class DeleteDocumentController {
             return response;
         boolean isDocumentDeleted = deleteService.deleteDocumentByID(databaseName,collectionName,id);
         if(isDocumentDeleted)
-            return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document were successfully deleted!");
+            return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document was successfully deleted!");
         return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,"Document not found to delete!\n");
     }
 

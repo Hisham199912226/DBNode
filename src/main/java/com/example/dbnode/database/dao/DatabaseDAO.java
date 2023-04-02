@@ -77,15 +77,9 @@ public class DatabaseDAO implements DAO {
             throw new IllegalArgumentException();
         String jsonObjectAsString = DocumentMapper.documentToJsonString(document);
         String path = constructPath(databaseName,collectionName);
-        if(isCollectionEmpty(databaseName,collectionName)) {
-            createSchemaFile(path,jsonObjectAsString);
+        String jsonSchema = getSchema(path);
+        if(isJsonObjectValid(jsonSchema,jsonObjectAsString)){
             return createDocumentFile(path,document.getId(),jsonObjectAsString);
-        }
-        else {
-            String jsonSchema = getSchema(path);
-            if(isJsonObjectValid(jsonSchema,jsonObjectAsString)){
-                return createDocumentFile(path,document.getId(),jsonObjectAsString);
-            }
         }
         return false;
     }
@@ -103,8 +97,9 @@ public class DatabaseDAO implements DAO {
     private int countDocumentsWithSchema(String databaseName, String collectionName){
         return ioOperations.getFilesCount(constructPath(databaseName),collectionName);
     }
-    private boolean createSchemaFile(String path, String jsonObjectAsString) throws IOException {
+    public boolean createSchemaFile(String databaseName, String collectionName, String jsonObjectAsString) throws IOException {
         String jsonSchema = produceJsonSchema(jsonObjectAsString);
+        String path = constructPath(databaseName,collectionName);
         return ioOperations.createFile(path,"schema",jsonSchema);
     }
     private String produceJsonSchema(String jsonObjectAsString) throws JsonProcessingException {

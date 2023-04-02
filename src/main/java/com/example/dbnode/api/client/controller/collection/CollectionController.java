@@ -7,6 +7,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 
 @RestController
@@ -16,13 +17,14 @@ public class CollectionController {
     private static final String DATABASE_NOT_EXIST_MESSAGE = "Database you provided does not exist";
 
     @PostMapping("node/client/create/collection/{databaseName}/{collectionName}")
-    public ResponseEntity<String> createCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName){
+    public ResponseEntity<String> createCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName,@RequestBody String jsonSchema, Principal principal) throws IOException {
         if(databaseName.equals("db_system"))
             return ResponseEntityCreator.getResponse(HttpStatus.FORBIDDEN,"You can not add collection to db_system!");
-
+        if(hasRole(principal,"USER"))
+            return ResponseEntityCreator.getResponse(HttpStatus.FORBIDDEN,"You can not add collection as a user! you need the admin role to have this privilege ");
         if(checkIfDatabaseNotExist(databaseName))
             return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,DATABASE_NOT_EXIST_MESSAGE);
-        boolean isCollectionCreated = collectionService.createCollection(databaseName,collectionName);
+        boolean isCollectionCreated = collectionService.createCollection(databaseName,collectionName,jsonSchema);
         if(isCollectionCreated)
             return ResponseEntityCreator.getResponse(HttpStatus.CREATED,"Collection was created successfully!");
         else
@@ -31,10 +33,11 @@ public class CollectionController {
 
 
     @DeleteMapping("node/client/delete/collection/{databaseName}/{collectionName}")
-    public ResponseEntity<String> deleteCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName){
+    public ResponseEntity<String> deleteCollection(@PathVariable("databaseName") String databaseName, @PathVariable("collectionName") String collectionName, Principal principal){
         if(databaseName.equals("db_system"))
             return ResponseEntityCreator.getResponse(HttpStatus.FORBIDDEN,"You can not delete collections from db_system!");
-
+        if(hasRole(principal,"USER"))
+            return ResponseEntityCreator.getResponse(HttpStatus.FORBIDDEN,"You can not delete collection as a user! you need the admin role to have this privilege ");
         if(checkIfDatabaseNotExist(databaseName))
             return ResponseEntityCreator.getResponse(HttpStatus.NOT_FOUND,DATABASE_NOT_EXIST_MESSAGE);
         boolean isCollectionDeleted = collectionService.deleteCollection(databaseName,collectionName);

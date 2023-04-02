@@ -15,7 +15,7 @@ public class BroadcastDeleteDocumentController {
 
     private final BroadcastDeleteDocumentService broadcastDeleteDocumentService;
 
-    @PostMapping("node/broadcast/document/delete/one/{databaseName}/{collectionName}")
+    @DeleteMapping("node/broadcast/document/delete/one/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteOneDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestParam String id) throws JsonProcessingException {
         boolean isDocumentDeleted = broadcastDeleteDocumentService.deleteOneDocument(databaseName,collectionName,id);
         if(isDocumentDeleted)
@@ -23,7 +23,7 @@ public class BroadcastDeleteDocumentController {
         return ResponseEntityCreator.getResponse(HttpStatus.BAD_REQUEST,"There is a problem with delete document received from a broadcast message!");
     }
 
-    @PostMapping("node/broadcast/document/delete/many/{databaseName}/{collectionName}")
+    @DeleteMapping("node/broadcast/document/delete/many/{databaseName}/{collectionName}")
     public ResponseEntity<String> deleteManyDocuments(@PathVariable String databaseName, @PathVariable String collectionName, @RequestBody List<String> ids) throws JsonProcessingException {
         boolean isDocumentsDeleted = broadcastDeleteDocumentService.deleteManyDocuments(databaseName,collectionName,ids);
         if(isDocumentsDeleted)

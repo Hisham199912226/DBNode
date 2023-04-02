@@ -28,7 +28,7 @@ public class DefaultAdminService {
     public void prepareDefaultDatabaseWithDefaultAdmin() throws IOException {
         String jsonUser = "{\"username\":\"admin\", \"password\":\"admin\", \"role\": \"ADMIN\" }";
         if(databaseService.createDatabase("db_system")){
-            collectionService.createCollection("db_system","users");
+            collectionService.createCollection("db_system","users",jsonUser);
             jsonUser = getJsonUserWithEncodedPassword(jsonUser);
             addDocumentService.generateIdAndAddDocument("db_system","users",jsonUser);
         }

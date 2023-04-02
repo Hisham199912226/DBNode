@@ -146,7 +146,7 @@ public class DeleteDocumentService {
     private ResponseEntity<String> redirectDeleteQuery(String databaseName, String collectionName, Node affinityNode, String documentId){
         if(databaseName == null || collectionName == null || affinityNode == null || documentId == null)
             throw new IllegalArgumentException();
-       return httpService.deleteMethod(getRedirectDeleteDocumentPath(databaseName,collectionName,affinityNode,documentId), String.class);
+       return httpService.deleteMethod(getRedirectDeleteDocumentPath(databaseName,collectionName,affinityNode,documentId), "",String.class);
     }
 
     private String getRedirectDeleteDocumentPath(String databaseName, String collectionName, Node node, String documentId){

@@ -21,7 +21,7 @@ public class DeleteDocumentBroadcast {
     public void broadcastDeleteDocumentChange(String databaseName, String collectionName, String id){
         getClusterInfo();
         for(Node node : clusterInfo){
-            httpService.postMethod(getBroadcastDeleteDocumentPath(databaseName,collectionName,node,id),"", String.class);
+            httpService.deleteMethod(getBroadcastDeleteDocumentPath(databaseName,collectionName,node,id),"", String.class);
         }
     }
 

@@ -15,14 +15,12 @@ import java.util.List;
 public class CollectionBroadcast {
     private final RetrieveClusterInfoService clusterInfoService;
     private List<Node> clusterInfo = new ArrayList<>();
-    private final WebClient webClient;
     private final HttpService httpService;
 
-    public void broadcastCreateCollectionChange(String databaseName, String collectionName){
+    public void broadcastCreateCollectionChange(String databaseName, String collectionName, String jsonSchema){
         getClusterInfo();
-        System.out.println(clusterInfo);
         for(Node node : clusterInfo){
-            httpService.postMethod(getBroadcastCreateCollectionPath(databaseName,collectionName,node),"", String.class);
+            httpService.postMethod(getBroadcastCreateCollectionPath(databaseName,collectionName,node),jsonSchema, String.class);
         }
     }
 
