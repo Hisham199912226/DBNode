@@ -3,6 +3,7 @@ package com.example.dbnode.api.redirection.controller;
 import com.example.dbnode.api.client.service.document.UpdateDocumentService;
 import com.example.dbnode.utils.ResponseEntityCreator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +12,14 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class RedirectUpdateDocumentController {
 
     private final UpdateDocumentService updateDocumentService;
 
     @PutMapping("node/redirect/update/document/{databaseName}/{collectionName}")
     public ResponseEntity<String> updateRedirectedDocument(@PathVariable String databaseName, @PathVariable String collectionName, @RequestParam String documentId, @RequestBody String newContent) throws IOException {
-        System.out.println("Redirected to me");
+        log.info("Receive Update Document Redirection");
         boolean isDocumentUpdated = updateDocumentService.updateDocumentByID(databaseName,collectionName,documentId,newContent);
         if(isDocumentUpdated)
             return ResponseEntityCreator.getResponse(HttpStatus.OK,"Document was successfully updated!");

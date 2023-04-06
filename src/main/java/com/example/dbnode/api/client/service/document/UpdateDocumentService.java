@@ -102,6 +102,21 @@ public class UpdateDocumentService {
     }
 
 
+    private boolean traverseToUpdateLocally(JsonNode newDoc, JsonNode content) {
+        if (newDoc == null || content == null) {
+            throw new IllegalArgumentException("Both old and new documents must be non-null");
+        }
+        boolean success;
+        if (content.isObject()) {
+            success = updateObjectProperties(newDoc, content);
+        } else if (content.isArray()) {
+            success = updateArrayElements(newDoc, content);
+        } else {
+            success = updateSingleNode(newDoc, content);
+        }
+        return success;
+    }
+
     private boolean updateObjectProperties(JsonNode newDoc, JsonNode content) {
         if(newDoc == null || content == null)
             throw new IllegalArgumentException();
@@ -143,20 +158,7 @@ public class UpdateDocumentService {
         return success;
     }
 
-    private boolean traverseToUpdateLocally(JsonNode newDoc, JsonNode content) {
-        if (newDoc == null || content == null) {
-            throw new IllegalArgumentException("Both old and new documents must be non-null");
-        }
-        boolean success;
-        if (content.isObject()) {
-            success = updateObjectProperties(newDoc, content);
-        } else if (content.isArray()) {
-            success = updateArrayElements(newDoc, content);
-        } else {
-            success = updateSingleNode(newDoc, content);
-        }
-        return success;
-    }
+
     private boolean updateSingleNode(JsonNode newDoc, JsonNode content) {
         if(newDoc == null || content == null)
             throw new IllegalArgumentException();

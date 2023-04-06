@@ -2,6 +2,7 @@ package com.example.dbnode.utils;
 
 import com.example.dbnode.api.client.model.Document;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +30,7 @@ public class DocumentMapper {
                 jsonString.append(line);
             }
         }
-        ConcurrentHashMap<String,Object> json = objectMapper.readValue(jsonString.toString(), ConcurrentHashMap.class);
+        ConcurrentHashMap<String,Object> json = objectMapper.readValue(jsonString.toString(), new TypeReference<ConcurrentHashMap<String,Object>>(){});
         document.setDocument(json);
         return document;
     }
@@ -38,7 +39,7 @@ public class DocumentMapper {
         if(jsonString == null)
             throw new IllegalArgumentException();
         Document document = new Document();
-        ConcurrentHashMap<String,Object> json = objectMapper.readValue(jsonString, ConcurrentHashMap.class);
+        ConcurrentHashMap<String,Object> json = objectMapper.readValue(jsonString, new TypeReference<ConcurrentHashMap<String,Object>>(){});
         document.setDocument(json);
         return document;
     }

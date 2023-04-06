@@ -1,7 +1,7 @@
 package com.example.dbnode.api.client.controller.document;
 
 import com.example.dbnode.api.bootstrap.model.Node;
-import com.example.dbnode.api.bootstrap.service.AffinityService;
+import com.example.dbnode.api.client.service.AffinityService;
 import com.example.dbnode.api.client.service.PathValidationService;
 import com.example.dbnode.api.client.service.document.*;
 

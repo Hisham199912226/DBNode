@@ -1,8 +1,7 @@
 package com.example.dbnode.database.dao;
 
 import com.example.dbnode.database.io.*;
-import com.example.dbnode.api.client.model.Document;
-import com.example.dbnode.api.client.model.DocumentsCollection;
+import com.example.dbnode.api.client.model.*;
 import com.example.dbnode.schema.*;
 import com.example.dbnode.utils.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -89,14 +88,7 @@ public class DatabaseDAO implements DAO {
             throw new IllegalArgumentException();
         return DATA_DEFAULT_PATH.concat(databaseName.concat("/").concat(collectionName));
     }
-    private boolean isCollectionEmpty(String databaseName, String collectionName){
-        int documentsCount = countDocumentsWithSchema(databaseName,collectionName);
-        return documentsCount == 0;
-    }
 
-    private int countDocumentsWithSchema(String databaseName, String collectionName){
-        return ioOperations.getFilesCount(constructPath(databaseName),collectionName);
-    }
     public boolean createSchemaFile(String databaseName, String collectionName, String jsonObjectAsString) throws IOException {
         String jsonSchema = produceJsonSchema(jsonObjectAsString);
         String path = constructPath(databaseName,collectionName);

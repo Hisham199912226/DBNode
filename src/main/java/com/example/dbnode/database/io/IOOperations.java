@@ -12,7 +12,6 @@ public class IOOperations implements IO{
     ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
-
     @Override
     public boolean createDirectory(String path,String dirName) throws SecurityException{
         if(path == null || dirName == null)
@@ -75,7 +74,7 @@ public class IOOperations implements IO{
         File file = new File(path,fileName.concat(".txt"));
         if(file.exists())
             return false;
-        if(!isPathExist(path))
+        if(!doesPathExist(path))
             return false;
         try {
             writeLock.lock();
@@ -90,7 +89,7 @@ public class IOOperations implements IO{
         return true;
     }
 
-    private boolean isPathExist(String path){
+    private boolean doesPathExist(String path){
         File file = new File(path,"");
         return file.exists();
     }
@@ -99,7 +98,7 @@ public class IOOperations implements IO{
     public boolean deleteFile(String path, String fileName) {
         if(path == null || fileName == null)
             throw new IllegalArgumentException();
-        if(!isPathExist(path))
+        if(!doesPathExist(path))
             return false;
         try {
             writeLock.lock();
@@ -114,7 +113,7 @@ public class IOOperations implements IO{
     @Override
     public boolean updateFile(String path, String fileName, String newContent) throws IOException {
         File fileToUpdate = getFileByName(path,fileName);
-        if(!isPathExist(path))
+        if(!doesPathExist(path))
             return false;
         try{
             writeLock.lock();

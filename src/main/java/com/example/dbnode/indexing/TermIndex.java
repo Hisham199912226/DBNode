@@ -4,7 +4,6 @@ import com.example.dbnode.api.client.model.Document;
 import com.example.dbnode.utils.DocumentMapper;
 import com.example.dbnode.utils.JsonToPropertyValueConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 
 import java.util.*;
@@ -19,7 +18,6 @@ public class TermIndex implements Index{
     private ConcurrentHashMap<String,Document> documents;
     private HashMap<Integer,String> idIndex;
     private HashMap<String,Integer> reversedIdIndex;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final ResultsIntersectionFinder intersectionFinder = new ResultsIntersectionFinder();
     private final ReentrantReadWriteLock lock;
 
@@ -113,7 +111,6 @@ public class TermIndex implements Index{
     public List<String> findBySingleValue(String value) {
         if(value == null)
             throw new IllegalArgumentException();
-        value = value;
         lock.readLock().lock();
         try {
             HashSet<Integer> result = new HashSet<>();
@@ -135,10 +132,9 @@ public class TermIndex implements Index{
         lock.readLock().lock();
         try {
             for(String value : values){
-                String value1 = value;
-                if(!postings.containsKey(value1))
+                if(!postings.containsKey(value))
                     return Collections.emptyList();
-                results.add(new HashSet<>(postings.get(value1)));
+                results.add(new HashSet<>(postings.get(value)));
             }
         } finally {
             lock.readLock().unlock();

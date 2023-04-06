@@ -130,7 +130,6 @@ public class DeleteDocumentService {
         else {
             ResponseEntity<String> response = redirectDeleteQuery(databaseName,collectionName,affinityNode,document.getId());
             result[0] = response.getStatusCode() == HttpStatus.OK;
-
         }
         return result;
     }
@@ -174,7 +173,6 @@ public class DeleteDocumentService {
             throw new IllegalArgumentException();
         return readService.readDocumentByID(collection,documentId);
     }
-
 
     private void deleteDocumentFromCollectionAndIndex(DocumentsCollection collection, Document document) throws JsonProcessingException {
         if(collection == null)
